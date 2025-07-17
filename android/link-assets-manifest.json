@@ -2,6 +2,14 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/LeagueSpartan-Light.ttf",
+      "sha1": "0a9e9b3f3300ade3bdff213fdfa6478388592080"
+    },
+    {
+      "path": "assets/fonts/LeagueSpartan-Medium.ttf",
+      "sha1": "19bb6b70d4e20121a508f4dced478b7705b4bf63"
+    },
+    {
       "path": "assets/fonts/LeagueSpartan-SemiBold.ttf",
       "sha1": "f9426845f7c49942a813b7160273ae7e42283613"
     },

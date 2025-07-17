@@ -12,7 +12,7 @@ const SplashScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Splash'>>();
 
   useEffect(() => {
-    const enableAutoNavigate = false;
+    const enableAutoNavigate = false
     if (enableAutoNavigate) {
       setTimeout(() => {
         navigation.navigate('Login');
@@ -28,7 +28,7 @@ const SplashScreen = () => {
         resizeMode="contain"
       />
       <Text style={styles.title}>SkinLight</Text>
-      <Text style={styles.subtitle}>Dermatology AI Assistant</Text>
+      <Text style={styles.subtitle}>Dermatology Assistant</Text>
     </View>
   );
 };
@@ -43,11 +43,11 @@ const styles = StyleSheet.create({
     logo: {
         width: Dimensions.get('window').width * 0.4,
         height: Dimensions.get('window').width * 0.4,
-        marginTop: -20,
+        marginTop: -80,
         marginBottom: 0
     },
     title: {
-        fontSize: 48,
+        fontSize: 42,
         color: 'white',
         fontFamily: 'LeagueSpartan-Thin',
         textAlign: 'center',
