@@ -5,17 +5,17 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {
   Splash: undefined;
-  Login: undefined;
+  Welcome: undefined;
 };
 
 const SplashScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Splash'>>();
 
   useEffect(() => {
-    const enableAutoNavigate = true
+    const enableAutoNavigate = true;
     if (enableAutoNavigate) {
       setTimeout(() => {
-        navigation.navigate('Login');
+        navigation.navigate('Welcome');
       }, 3000);
     }
   }, []);

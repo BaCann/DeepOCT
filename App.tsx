@@ -8,13 +8,15 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 import SplashScreen from './screen/SplashScreen';
+import WelcomeScreen from './screen/WelcomeScreen';
 import LoginScreen from './screen/LoginScreen';
 import RegisterScreen from './screen/RegisterScreen';
 
 type RootStackParamList = {
   Splash: undefined;
+  Welcome: undefined;
   Login: undefined;
   Register: undefined;
 };
@@ -34,17 +36,12 @@ function App() {
         }}
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;

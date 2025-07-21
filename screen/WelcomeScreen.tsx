@@ -14,16 +14,16 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {
   Splash: undefined;
+  Welcome: undefined;
   Login: undefined;
   Register: undefined;
 };
 
-const LoginScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Login'>>();
+const WelcomeScreen = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Welcome'>>();
 
- 
   const handleLogin = () => {
-    console.log('Login pressed');
+    navigation.navigate('Login');
   };
 
   const handleSignUp = () => {
@@ -193,4 +193,4 @@ signUpButtonText: {
 
 });
 
-export default LoginScreen;
+export default WelcomeScreen;

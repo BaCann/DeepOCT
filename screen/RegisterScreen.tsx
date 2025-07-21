@@ -21,6 +21,7 @@ type RootStackParamList = {
 const RegisterScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Register'>>();
   const [email, setEmail] = useState('');
+  const [name,setName]=useState('')
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -37,16 +38,25 @@ const RegisterScreen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Create Account</Text>
-          <Text style={styles.headerSubtitle}>Please fill in the form to continue</Text>
+          <Text style={styles.headerTitle}>New Account</Text>
         </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Full name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={email}
+              onChangeText={setName}
+              autoCapitalize="none"
+            />
+          </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email"
+              placeholder="Email"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
