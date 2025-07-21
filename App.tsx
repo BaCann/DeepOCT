@@ -12,6 +12,7 @@ import { StatusBar, useColorScheme } from 'react-native';
 import SplashScreen from './screen/SplashScreen';
 import WelcomeScreen from './screen/WelcomeScreen';
 import RegisterScreen from './screen/RegisterScreen';
+import LoginScreen from './screen/LoginScreen';
 
 type RootStackParamList = {
   Splash: undefined;
@@ -37,6 +38,7 @@ function App() {
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
