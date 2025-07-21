@@ -8,14 +8,15 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import { NewAppScreen } from '@react-native/new-app-screen';
+import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
 import SplashScreen from './screen/SplashScreen';
 import LoginScreen from './screen/LoginScreen';
+import RegisterScreen from './screen/RegisterScreen';
 
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
+  Register: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,6 +35,7 @@ function App() {
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

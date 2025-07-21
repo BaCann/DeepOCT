@@ -12,7 +12,7 @@ const SplashScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Splash'>>();
 
   useEffect(() => {
-    const enableAutoNavigate = false
+    const enableAutoNavigate = true
     if (enableAutoNavigate) {
       setTimeout(() => {
         navigation.navigate('Login');

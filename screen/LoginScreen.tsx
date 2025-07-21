@@ -27,8 +27,7 @@ const LoginScreen = () => {
   };
 
   const handleSignUp = () => {
-    console.log('Sign Up pressed');
-    // navigation.navigate('Register');
+    navigation.navigate('Register');
   };
 
   return (
