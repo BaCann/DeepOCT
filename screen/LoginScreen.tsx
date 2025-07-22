@@ -17,6 +17,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  ForgotPassword: undefined;
 };
 
 const LoginScreen = () => {
@@ -34,7 +35,7 @@ const LoginScreen = () => {
   };
 
   const handleForgetPassword = () => {
-    console.log('Forget Password pressed');
+    navigation.navigate('ForgotPassword')
   };
 
   return (
@@ -99,8 +100,9 @@ const LoginScreen = () => {
               <Image
   source={
     showPassword
-      ? require('../assets/Eye-off.png') 
-      : require('../assets/Eye-open.png') 
+      ? require('../assets/Eye-open.png') 
+      : require('../assets/Eye-off.png') 
+      
   }
   style={styles.eyeIcon}
 />
@@ -108,7 +110,7 @@ const LoginScreen = () => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={handleForgetPassword} style={styles.forgetPasswordBtn}>
-            <Text style={styles.forgetPasswordText}>Forget Password</Text>
+            <Text style={styles.forgetPasswordText}>Forgot Password</Text>
           </TouchableOpacity>
         </View>
 
@@ -170,7 +172,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 40,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   backButton: {
   padding: 20,
@@ -204,9 +206,10 @@ const styles = StyleSheet.create({
 },
 
 
-  // Form
+  
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
+     marginTop: 0,
   },
   label: {
     fontSize: 18,

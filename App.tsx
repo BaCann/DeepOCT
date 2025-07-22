@@ -13,12 +13,16 @@ import SplashScreen from './screen/SplashScreen';
 import WelcomeScreen from './screen/WelcomeScreen';
 import RegisterScreen from './screen/RegisterScreen';
 import LoginScreen from './screen/LoginScreen';
+import ForgotPasswordScreen from './screen/ForgotPasswordScreen';
+import OTPScreen from './screen/OTPScreen';
 
 type RootStackParamList = {
   Splash: undefined;
   Welcome: undefined;
   Login: undefined;
   Register: undefined;
+  ForgotPassword: undefined;
+  OTP: { email: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,6 +43,8 @@ function App() {
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="OTP" component={OTPScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

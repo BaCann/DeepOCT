@@ -128,8 +128,9 @@ const RegisterScreen = () => {
               <Image
                 source={
                   showPassword
-                    ? require('../assets/Eye-off.png')
-                    : require('../assets/Eye-open.png')
+                  ? require('../assets/Eye-open.png')
+                  : require('../assets/Eye-off.png')
+                    
                 }
                 style={styles.eyeIcon}
               />
@@ -157,8 +158,9 @@ const RegisterScreen = () => {
               <Image
                 source={
                   showConfirmPassword
-                    ? require('../assets/Eye-off.png')
-                    : require('../assets/Eye-open.png')
+                  ? require('../assets/Eye-open.png')
+                  : require('../assets/Eye-off.png')
+                    
                 }
                 style={styles.eyeIcon}
               />
