@@ -13,10 +13,10 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
+
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  // Add other screens if needed
 };
 
 const LoginScreen = () => {
@@ -26,7 +26,6 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    // TODO: Add login logic
     console.log('Login pressed');
   };
 
@@ -35,12 +34,36 @@ const LoginScreen = () => {
   };
 
   const handleForgetPassword = () => {
-    // TODO: Add forget password logic
     console.log('Forget Password pressed');
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header Row: Back + Title + Placeholder */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Image
+            source={require('../assets/Vector_back.png')}
+            style={styles.backIcon}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+        
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Login</Text>
+        </View>
+
+        <View style={styles.placeholder} />
+      </View>
+<View style={styles.headerLeft}>
+  <Text style={styles.headerTitle}>Welcome!</Text>
+</View>
+
+
+      {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
         {/* Email */}
         <View style={styles.inputContainer}>
@@ -74,13 +97,14 @@ const LoginScreen = () => {
               onPress={() => setShowPassword(!showPassword)}
             >
               <Image
-                source={
-                  showPassword
-                    ? require('../assets/Vector_eye.png')
-                    : require('../assets/Vector_eye.png')
-                }
-                style={styles.eyeIcon}
-              />
+  source={
+    showPassword
+      ? require('../assets/Eye-off.png') 
+      : require('../assets/Eye-open.png') 
+  }
+  style={styles.eyeIcon}
+/>
+
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={handleForgetPassword} style={styles.forgetPasswordBtn}>
@@ -95,14 +119,17 @@ const LoginScreen = () => {
 
         {/* Or sign up with */}
         <View style={styles.orRow}>
-          <View style={styles.line} />
-          <Text style={styles.orText}>or sign up with</Text>
-          <View style={styles.line} />
+        
+          <Text style={styles.orText}>or log in with</Text>
+        
         </View>
 
         {/* Google Button */}
         <TouchableOpacity style={styles.googleButton}>
-          <Text style={styles.googleText}>G</Text>
+          <Image
+            source={require('../assets/logo_gg.png')}
+            style={styles.googleIcon}
+          />
         </TouchableOpacity>
 
         {/* Sign Up Link */}
@@ -120,37 +147,87 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingHorizontal: 30,
   },
+
+ headerLeft: {
+  alignItems: 'flex-start',
+  justifyContent: 'flex-start',
+  paddingLeft: 40,
+  marginBottom: 40,           
+},
+
+
+
+
+  // Header
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  backButton: {
+  padding: 20,
+  alignSelf: 'flex-start',
+  transform: [{ translateX: 10 }],
+},
+
+  backIcon: {
+    width: 16,
+    height: 16,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+     paddingLeft: -20,
+  },
+  placeholder: {
+    width: 44,
+  },
+
+
+  headerTitle: {
+  fontSize: 28,
+  fontFamily: Platform.select({
+    ios: 'LeagueSpartan-SemiBold',
+    android: 'LeagueSpartan-SemiBold',
+    default: 'System',
+  }),
+  color: '#2260FF',
+  transform: [{ translateX: -15 }], 
+},
+
+
+  // Form
   inputContainer: {
-    marginBottom: 18,
+    marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    color: '#000',
-    marginBottom: 8,
+    fontSize: 18,
     fontFamily: Platform.select({
-      ios: 'System',
-      android: 'System',
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
+    color: '#000000',
+    marginBottom: 8,
   },
   input: {
-    height: 48,
+    height: 50,
     backgroundColor: '#ECF1FF',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: 10,
+    paddingHorizontal: 15,
     fontSize: 16,
     color: '#2260FF',
     fontFamily: Platform.select({
-      ios: 'System',
-      android: 'System',
+      ios: 'LeagueSpartan-Regular',
+      android: 'LeagueSpartan-Regular',
       default: 'System',
     }),
   },
@@ -164,8 +241,8 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   eyeIcon: {
-    width: 22,
-    height: 22,
+    width: 18,
+    height: 18,
     tintColor: '#809CFF',
   },
   forgetPasswordBtn: {
@@ -174,31 +251,34 @@ const styles = StyleSheet.create({
   },
   forgetPasswordText: {
     color: '#2260FF',
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: Platform.select({
-      ios: 'System',
-      android: 'System',
+       ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
   },
+
   loginButton: {
     backgroundColor: '#2260FF',
-    height: 52,
-    borderRadius: 26,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
+    width: 200,
+     alignSelf: 'center',
     justifyContent: 'center',
-    marginTop: 18,
+    marginTop: 10,
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: 'bold',
     fontFamily: Platform.select({
-      ios: 'System',
-      android: 'System',
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
   },
+
   orRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -212,44 +292,58 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   orText: {
-    color: '#B5C9FF',
+    color: '#000000',
     fontSize: 13,
     fontFamily: Platform.select({
-      ios: 'System',
-      android: 'System',
+      ios: 'LeagueSpartan-Light',
+      android: 'LeagueSpartan-Light',
       default: 'System',
     }),
   },
   googleButton: {
     alignSelf: 'center',
     backgroundColor: '#ECF1FF',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 0,
+    height: 0,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 15,
     marginBottom: 32,
   },
-  googleText: {
-    fontSize: 28,
-    color: '#809CFF',
-    fontWeight: 'bold',
+  googleIcon: {
+    width: 45,
+    height: 45,
+    resizeMode: 'contain',
   },
+
+ 
+
   signupRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  signupText: {
-    color: '#000',
-    fontSize: 14,
-  },
-  signupLink: {
-    color: '#2260FF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginTop: 8,
+},
+signupText: {
+  color: '#000000',
+  fontSize: 14,
+  fontFamily: Platform.select({
+    ios: 'LeagueSpartan-Light',
+    android: 'LeagueSpartan-Light',
+    default: 'System',
+  }), 
+},
+signupLink: {
+  color: '#2260FF',
+  fontSize: 14,
+  fontFamily: Platform.select({
+    ios: 'LeagueSpartan-SemiBold',
+    android: 'LeagueSpartan-SemiBold',
+    default: 'System',
+  }), 
+},
+
 });
 
 export default LoginScreen;

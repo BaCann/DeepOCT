@@ -30,6 +30,8 @@ const WelcomeScreen = () => {
     navigation.navigate('Register');
   };
 
+ 
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
   backgroundColor: '#2260FF',
-  height: 50, // cố định chiều cao
+  height: 50, 
   paddingHorizontal: 90,
   borderRadius: 25,
   alignItems: 'center',
@@ -164,7 +166,8 @@ const styles = StyleSheet.create({
 
 loginButtonText: {
   color: '#FFFFFF',
-  fontSize: 24, // tăng kích thước chữ
+  fontSize: 24,
+  marginBottom:6 ,
   fontFamily: Platform.select({
     ios: 'LeagueSpartan-Medium',
     android: 'LeagueSpartan-Medium',
@@ -183,7 +186,8 @@ signUpButton: {
 
 signUpButtonText: {
   color: '#2260FF',
-  fontSize: 24, // tăng kích thước chữ
+  fontSize: 24,
+  marginBottom:6 ,
   fontFamily: Platform.select({
     ios: 'LeagueSpartan-Medium',
     android: 'LeagueSpartan-Medium',
