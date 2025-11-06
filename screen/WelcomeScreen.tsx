@@ -10,17 +10,17 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { AuthStackParamList, RootStackParamList } from '../App';
 
-type RootStackParamList = {
-  Splash: undefined;
-  Welcome: undefined;
-  Login: undefined;
-  Register: undefined;
-};
+type WelcomeScreenNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<AuthStackParamList, 'Welcome'>,
+  StackNavigationProp<RootStackParamList>
+>;
 
 const WelcomeScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Welcome'>>();
+  const navigation = useNavigation<WelcomeScreenNavigationProp>();
 
   const handleLogin = () => {
     navigation.navigate('Login');
@@ -29,8 +29,6 @@ const WelcomeScreen = () => {
   const handleSignUp = () => {
     navigation.navigate('Register');
   };
-
- 
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,17 +46,18 @@ const WelcomeScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.appTitle}>SkinSight</Text>
-          <Text style={styles.subtitle}>Dermatology Assistant</Text>
+          <Text style={styles.appTitle}>DeepOCT</Text>
+          <Text style={styles.subtitle}>OCT Diagnosis Assistant</Text>
         </View>
 
         {/* Phần dưới */}
+       <Text style={styles.description}>
+        DeepOCT uses AI to analyze OCT images,{'\n'}
+        supporting ophthalmologists in accurate diagnosis.
+      </Text>
+
         <View style={styles.bottomContent}>
-          <Text style={styles.description}>
-            SkinSight empowers dermatologists with AI-driven skin image analysis,
-            enabling precise diagnosis and{'\n'}
-            exceptionally efficient treatments plans.
-          </Text>
+
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>

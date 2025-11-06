@@ -1,10 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -15,8 +8,14 @@ import RegisterScreen from './screen/RegisterScreen';
 import LoginScreen from './screen/LoginScreen';
 import ForgotPasswordScreen from './screen/ForgotPasswordScreen';
 import OTPScreen from './screen/OTPScreen';
+import { TabBar } from './components/bottombar'; 
 
-type RootStackParamList = {
+export type RootStackParamList = {
+  Auth: undefined;
+  Main: undefined;
+};
+
+export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
   Login: undefined;
@@ -25,7 +24,25 @@ type RootStackParamList = {
   OTP: { email: string };
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+
+
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+
+const AuthNavigator = () => (
+  <AuthStack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <AuthStack.Screen name="Splash" component={SplashScreen} />
+    <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
+    <AuthStack.Screen name="Login" component={LoginScreen} />
+    <AuthStack.Screen name="Register" component={RegisterScreen} />
+    <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    <AuthStack.Screen name="OTP" component={OTPScreen} />
+  </AuthStack.Navigator>
+);
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -33,19 +50,20 @@ function App() {
   return (
     <NavigationContainer>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Stack.Navigator
-        initialRouteName="Splash"
+      <RootStack.Navigator
         screenOptions={{
           headerShown: false,
         }}
       >
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-        <Stack.Screen name="OTP" component={OTPScreen} />
-      </Stack.Navigator>
+        <RootStack.Screen name="Auth" component={AuthNavigator} />
+        <RootStack.Screen 
+          name="Main" 
+          component={TabBar}  
+          options={{
+            gestureEnabled: false,
+          }} 
+        />
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }

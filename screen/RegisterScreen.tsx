@@ -187,7 +187,12 @@ const RegisterScreen = () => {
           <Text style={styles.label}>Date of Birth</Text>
           <TouchableOpacity onPress={showDatepicker}>
             <View style={styles.input}>
-              <Text style={[styles.inputText, !dob && styles.placeholderText]}>
+              <Text 
+                style={[
+                  styles.inputText, 
+                  !dob && { color: '#809CFF' } // khi chưa có dob thì đổi màu
+                ]}
+              >
                 {dob || 'DD/MM/YYYY'}
               </Text>
             </View>

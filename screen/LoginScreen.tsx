@@ -10,24 +10,31 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { StackNavigationProp } from '@react-navigation/stack';
 
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { AuthStackParamList, RootStackParamList } from '../App';
 
-type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  ForgotPassword: undefined;
-};
+type LoginNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<AuthStackParamList, 'Login'>,
+  StackNavigationProp<RootStackParamList>
+>;
 
 const LoginScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Login'>>();
+  const navigation = useNavigation<LoginNavigationProp>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Login pressed');
+   const handleLogin = () => {
+    // reset stack sang Main (TabBar)
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Main' }], // chỉ còn TabBar trong stack
+      })
+    );
   };
 
   const handleSignUp = () => {
@@ -35,7 +42,7 @@ const LoginScreen = () => {
   };
 
   const handleForgetPassword = () => {
-    navigation.navigate('ForgotPassword')
+    navigation.navigate('ForgotPassword');
   };
 
   return (
@@ -59,10 +66,10 @@ const LoginScreen = () => {
 
         <View style={styles.placeholder} />
       </View>
-<View style={styles.headerLeft}>
-  <Text style={styles.headerTitle}>Welcome!</Text>
-</View>
 
+      <View style={styles.headerLeft}>
+        <Text style={styles.headerTitle}>Welcome!</Text>
+      </View>
 
       {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
@@ -98,15 +105,13 @@ const LoginScreen = () => {
               onPress={() => setShowPassword(!showPassword)}
             >
               <Image
-  source={
-    showPassword
-      ? require('../assets/Eye-open.png') 
-      : require('../assets/Eye-off.png') 
-      
-  }
-  style={styles.eyeIcon}
-/>
-
+                source={
+                  showPassword
+                    ? require('../assets/Eye-open.png') 
+                    : require('../assets/Eye-off.png')
+                }
+                style={styles.eyeIcon}
+              />
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={handleForgetPassword} style={styles.forgetPasswordBtn}>
@@ -121,9 +126,7 @@ const LoginScreen = () => {
 
         {/* Or sign up with */}
         <View style={styles.orRow}>
-        
           <Text style={styles.orText}>or log in with</Text>
-        
         </View>
 
         {/* Google Button */}
@@ -155,18 +158,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 30,
   },
-
- headerLeft: {
-  alignItems: 'flex-start',
-  justifyContent: 'flex-start',
-  paddingLeft: 40,
-  marginBottom: 40,           
-},
-
-
-
-
-  // Header
+  headerLeft: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingLeft: 40,
+    marginBottom: 40,           
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -175,11 +172,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButton: {
-  padding: 20,
-  alignSelf: 'flex-start',
-  transform: [{ translateX: 10 }],
-},
-
+    padding: 20,
+    alignSelf: 'flex-start',
+    transform: [{ translateX: 10 }],
+  },
   backIcon: {
     width: 16,
     height: 16,
@@ -187,29 +183,24 @@ const styles = StyleSheet.create({
   headerCenter: {
     flex: 1,
     alignItems: 'center',
-     paddingLeft: -20,
+    paddingLeft: -20,
   },
   placeholder: {
     width: 44,
   },
-
-
   headerTitle: {
-  fontSize: 28,
-  fontFamily: Platform.select({
-    ios: 'LeagueSpartan-SemiBold',
-    android: 'LeagueSpartan-SemiBold',
-    default: 'System',
-  }),
-  color: '#2260FF',
-  transform: [{ translateX: -15 }], 
-},
-
-
-  
+    fontSize: 28,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-SemiBold',
+      android: 'LeagueSpartan-SemiBold',
+      default: 'System',
+    }),
+    color: '#2260FF',
+    transform: [{ translateX: -15 }], 
+  },
   inputContainer: {
     marginBottom: 10,
-     marginTop: 0,
+    marginTop: 0,
   },
   label: {
     fontSize: 18,
@@ -256,19 +247,18 @@ const styles = StyleSheet.create({
     color: '#2260FF',
     fontSize: 14,
     fontFamily: Platform.select({
-       ios: 'LeagueSpartan-Medium',
+      ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
   },
-
   loginButton: {
     backgroundColor: '#2260FF',
     height: 50,
     borderRadius: 25,
     alignItems: 'center',
     width: 200,
-     alignSelf: 'center',
+    alignSelf: 'center',
     justifyContent: 'center',
     marginTop: 10,
   },
@@ -281,7 +271,6 @@ const styles = StyleSheet.create({
       default: 'System',
     }),
   },
-
   orRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -319,34 +308,30 @@ const styles = StyleSheet.create({
     height: 45,
     resizeMode: 'contain',
   },
-
- 
-
   signupRow: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginTop: 8,
-},
-signupText: {
-  color: '#000000',
-  fontSize: 14,
-  fontFamily: Platform.select({
-    ios: 'LeagueSpartan-Light',
-    android: 'LeagueSpartan-Light',
-    default: 'System',
-  }), 
-},
-signupLink: {
-  color: '#2260FF',
-  fontSize: 14,
-  fontFamily: Platform.select({
-    ios: 'LeagueSpartan-SemiBold',
-    android: 'LeagueSpartan-SemiBold',
-    default: 'System',
-  }), 
-},
-
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  signupText: {
+    color: '#000000',
+    fontSize: 14,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Light',
+      android: 'LeagueSpartan-Light',
+      default: 'System',
+    }), 
+  },
+  signupLink: {
+    color: '#2260FF',
+    fontSize: 14,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-SemiBold',
+      android: 'LeagueSpartan-SemiBold',
+      default: 'System',
+    }), 
+  },
 });
 
 export default LoginScreen;

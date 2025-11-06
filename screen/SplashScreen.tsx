@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import * as React from 'react';
+import { useEffect } from 'react';
 import { View, StyleSheet, Image, Dimensions, Text, Platform, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { AuthStackParamList, RootStackParamList } from '../App';
 
-type RootStackParamList = {
-  Splash: undefined;
-  Welcome: undefined;
-};
+type SplashScreenNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<AuthStackParamList, 'Splash'>,
+  StackNavigationProp<RootStackParamList>
+>;
 
 const SplashScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Splash'>>();
+  const navigation = useNavigation<SplashScreenNavigationProp>();
 
 const handleStart = () => {
    navigation.navigate('Welcome');
@@ -31,8 +34,8 @@ const handleStart = () => {
         style={styles.logo}
         resizeMode="contain"
       />
-      <Text style={styles.title}>SkinLight</Text>
-      <Text style={styles.subtitle}>Dermatology Assistant</Text>
+      <Text style={styles.title}>DeepOCT</Text>
+      <Text style={styles.subtitle}>OCT Diagnosis Assistant</Text>
       <TouchableOpacity style={styles.startButton} onPress={handleStart}>
         <Text style={styles.startButtonText}>Start</Text>
       </TouchableOpacity>
@@ -94,3 +97,4 @@ const styles = StyleSheet.create({
 );
 
 export default SplashScreen;
+
