@@ -11,29 +11,38 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-camera-roll/camera-roll": "^7.10.2",
     "@react-native-community/datetimepicker": "^8.4.2",
     "@react-native/new-app-screen": "0.80.1",
     "@react-navigation/bottom-tabs": "^7.7.3",
     "@react-navigation/native": "^7.1.17",
-    "@react-navigation/native-stack": "^7.3.21",
+    "@react-navigation/native-stack": "^7.6.2",
     "@react-navigation/stack": "^7.4.8",
     "date-fns": "^4.1.0",
+    "expo-camera": "~17.0.9",
     "react": "19.1.0",
     "react-native": "0.80.1",
+    "react-native-camera": "^4.2.1",
     "react-native-curved-bottom-bar": "^3.5.1",
     "react-native-date-picker": "^5.0.13",
+    "react-native-fontawesome": "^7.0.0",
+    "react-native-fs": "^2.20.0",
+    "react-native-image-crop-picker": "^0.51.1",
+    "react-native-image-picker": "^8.2.1",
+    "react-native-permissions": "^5.4.4",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.13.0",
     "react-native-size-scaling": "^0.5.4",
     "react-native-svg": "^15.14.0",
     "react-native-vector-icons": "^10.3.0",
+    "react-native-vision-camera": "^4.7.2",
     "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
-    "@react-native-community/cli": "19.0.0",
+    "@react-native-community/cli": "^19.1.2",
     "@react-native-community/cli-platform-android": "19.0.0",
     "@react-native-community/cli-platform-ios": "19.0.0",
     "@react-native/babel-preset": "0.80.1",
@@ -51,14 +60,10 @@
     "react-native-asset": "^2.1.1",
     "react-native-make": "^1.0.1",
     "react-test-renderer": "19.1.0",
+    "start-server-and-test": "^2.1.2",
     "typescript": "5.0.4"
   },
   "engines": {
     "node": ">=18"
-  },
-  "commands": {
-    "clean-android": "cd android && ./gradlew clean && cd ..",
-    "start-reset": "npx react-native start --reset-cache",
-    "android-run": "npx react-native run-android"
   }
 }

@@ -1,20 +1,21 @@
 import React from 'react';
-import { Linking, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { CurvedBottomBar } from 'react-native-curved-bottom-bar';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { scale } from 'react-native-size-scaling';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { Dimensions } from 'react-native';
+
+
 import HomeScreen from '../../screen/HomeScreen';
 import SettingScreen from '../../screen/SettingScreen';
+import { navigationRef } from '../../App'; 
 
 
 
 const { width } = Dimensions.get('window');
-export const TabBar = () => {
+export const TabBar = () => { 
   const _renderIcon = (routeName: string, selectedTab: string) => {
     let icon = '';
-
     switch (routeName) {
       case 'home':
         icon = 'home';
@@ -23,7 +24,6 @@ export const TabBar = () => {
         icon = 'setting';
         break;
     }
-
     return (
       <AntDesign
         name={icon}
@@ -32,22 +32,16 @@ export const TabBar = () => {
       />
     );
   };
-  const renderTabBar = ({ routeName, selectedTab, navigate }: any) => {
-    return (
-      <TouchableOpacity
-        onPress={() => navigate(routeName)}
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {_renderIcon(routeName, selectedTab)}
-      </TouchableOpacity>
-    );
-  };
 
 
+  const renderTabBar = ({ routeName, selectedTab, navigate }: any) => (
+    <TouchableOpacity
+      onPress={() => navigate(routeName)}
+      style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+    >
+      {_renderIcon(routeName, selectedTab)}
+    </TouchableOpacity>
+  );
 
   return (
     <CurvedBottomBar.Navigator
@@ -70,15 +64,16 @@ export const TabBar = () => {
       defaultScreenOptions={{}}
       renderCircle={() => (
         <TouchableOpacity
-            style={styles.btnCircle}
-            onPress={() => {
-            // Thêm action khi ấn vào đây
-            console.log('Center button pressed');
-            }}
+          style={styles.btnCircle}
+          onPress={() => {
+             navigationRef.current?.navigate('Main', {
+                 screen: 'CameraScreen'
+             });
+          }} 
         >
-            <FontAwesome name="camera" color="white" size={scale(20)} />
+          <FontAwesome name="camera" color="white" size={scale(20)} />
         </TouchableOpacity>
-        )}
+      )}
       tabBar={renderTabBar}
     >
       <CurvedBottomBar.Screen
