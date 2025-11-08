@@ -1,3 +1,4 @@
+// src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -9,12 +10,14 @@ import {
   Platform,
   ScrollView,
   Image,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList, RootStackParamList } from '../App';
+import authService from '../src/services/auth.service';
 
 type LoginNavigationProp = CompositeNavigationProp<
   StackNavigationProp<AuthStackParamList, 'Login'>,
@@ -26,15 +29,38 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-   const handleLogin = () => {
-    // reset stack sang Main (TabBar)
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Main' }], // chỉ còn TabBar trong stack
-      })
-    );
+  /**
+   * 🔐 HANDLE LOGIN - GỌI SERVICE
+   */
+  const handleLogin = async () => {
+    setLoading(true);
+
+    try {
+      const result = await authService.login({
+        email: email.trim(),
+        password: password,
+      });
+
+      if (result.success) {
+        Alert.alert('Success', result.message);
+        
+        // Navigate to Main screen
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Main' }],
+          })
+        );
+      } else {
+        Alert.alert('Login Failed', result.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignUp = () => {
@@ -84,6 +110,7 @@ const LoginScreen = () => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!loading}
           />
         </View>
 
@@ -99,6 +126,7 @@ const LoginScreen = () => {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              editable={!loading}
             />
             <TouchableOpacity
               style={styles.eyeButton}
@@ -120,8 +148,16 @@ const LoginScreen = () => {
         </View>
 
         {/* Log In Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Log In</Text>
+        <TouchableOpacity 
+          style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.loginButtonText}>Log In</Text>
+          )}
         </TouchableOpacity>
 
         {/* Or sign up with */}
@@ -162,7 +198,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     paddingLeft: 40,
-    marginBottom: 40,           
+    marginBottom: 40,
   },
   headerRow: {
     flexDirection: 'row',
@@ -196,7 +232,7 @@ const styles = StyleSheet.create({
       default: 'System',
     }),
     color: '#2260FF',
-    transform: [{ translateX: -15 }], 
+    transform: [{ translateX: -15 }],
   },
   inputContainer: {
     marginBottom: 10,
@@ -262,6 +298,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10,
   },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
   loginButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
@@ -276,12 +315,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 24,
     justifyContent: 'center',
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#ECF1FF',
-    marginHorizontal: 8,
   },
   orText: {
     color: '#000000',
@@ -321,7 +354,7 @@ const styles = StyleSheet.create({
       ios: 'LeagueSpartan-Light',
       android: 'LeagueSpartan-Light',
       default: 'System',
-    }), 
+    }),
   },
   signupLink: {
     color: '#2260FF',
@@ -330,7 +363,7 @@ const styles = StyleSheet.create({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
       default: 'System',
-    }), 
+    }),
   },
 });
 

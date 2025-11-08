@@ -9,11 +9,15 @@ import {
   Platform,
   ScrollView,
   Image,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { format } from 'date-fns'; 
+import { format } from 'date-fns'
+import authService from '../src/services/auth.service';
+ 
 
 
 type RootStackParamList = {
@@ -34,6 +38,7 @@ const RegisterScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
@@ -47,9 +52,40 @@ const RegisterScreen = () => {
     setShowDatePicker(true);
   };
 
-  const handleRegister = () => {
-    console.log('Register pressed');
-    // TODO: Thêm logic xử lý đăng ký
+const handleRegister = async () => {
+    // Validate password match
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await authService.register({
+        email,
+        password,
+        full_name: name,
+        mobile_number: phone,
+        date_of_birth: dob,
+      });
+       console.log('Register result:', result); // debug
+
+      if (result.success) {
+        Alert.alert('Success', result.message, [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
+      } else {
+        Alert.alert('Register Failed', result.message);
+      }
+    } catch (error) {
+      console.log('Register error:', error); // debug
+      Alert.alert('Error', 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBackToLogin = () => {
