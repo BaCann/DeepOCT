@@ -10,15 +10,22 @@ import RegisterScreen from './screen/RegisterScreen';
 import LoginScreen from './screen/LoginScreen';
 import ForgotPasswordScreen from './screen/ForgotPasswordScreen';
 import OTPScreen from './screen/OTPScreen';
+import ChangePasswordScreen from './screen/ChangePasswordScreen';
+
+// Settings screens
+import ChangePasswordInAppScreen from './screen/ChangePasswordInAppScreen';
+import EditProfileScreen from './screen/EditProfileScreen';
+import DeleteAccountScreen from './screen/DeleteAccountScreen';
+import PermissionsScreen from './screen/PermissionsScreen';
+import AboutScreen from './screen/AboutScreen';
 
 import { TabBar } from './components/bottombar';
-
-import CameraScreen from './screen/CameraScreen'; 
+import CameraScreen from './screen/CameraScreen';
 
 // ===== TYPE DEFINITIONS =====
 export type RootStackParamList = {
   Auth: undefined;
-  Main: { screen: keyof MainStackParamList }; 
+  Main: { screen: keyof MainStackParamList };
 };
 
 export type AuthStackParamList = {
@@ -28,11 +35,17 @@ export type AuthStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   OTP: { email: string };
+  ChangePassword: { resetToken: string };
 };
 
 export type MainStackParamList = {
   Tabs: undefined;
-  CameraScreen: undefined; 
+  CameraScreen: undefined;
+  ChangePasswordInApp: undefined;
+  EditProfile: undefined;
+  DeleteAccount: undefined;
+  PermissionsScreen: undefined;
+  AboutScreen: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -51,6 +64,7 @@ const AuthNavigator = () => (
     <AuthStack.Screen name="Register" component={RegisterScreen} />
     <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     <AuthStack.Screen name="OTP" component={OTPScreen} />
+    <AuthStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
   </AuthStack.Navigator>
 );
 
@@ -59,6 +73,11 @@ const MainNavigator = () => (
   <MainStack.Navigator screenOptions={{ headerShown: false }}>
     <MainStack.Screen name="Tabs" component={TabBar} />
     <MainStack.Screen name="CameraScreen" component={CameraScreen} />
+    <MainStack.Screen name="ChangePasswordInApp" component={ChangePasswordInAppScreen} />
+    <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
+    <MainStack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
+    <MainStack.Screen name="PermissionsScreen" component={PermissionsScreen} />
+    <MainStack.Screen name="AboutScreen" component={AboutScreen} />
   </MainStack.Navigator>
 );
 
@@ -67,7 +86,6 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    // THAY ĐỔI: Gắn ref vào NavigationContainer
     <NavigationContainer ref={navigationRef}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <RootStack.Navigator screenOptions={{ headerShown: false }}>

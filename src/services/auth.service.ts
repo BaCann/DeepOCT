@@ -99,6 +99,19 @@ class AuthService {
     }
   }
 
+    async resendOtp(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      if (!email || !this.isValidEmail(email)) {
+        return { success: false, message: 'Invalid email address' };
+      }
+
+      const response = await authApi.requestResetPassword({ email });
+
+      return { success: true, message: response.msg };
+    } catch (error) {
+      return { success: false, message: this.handleError(error) };
+    }
+  }
 
   async changePassword(
     resetToken: string,

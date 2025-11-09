@@ -1,3 +1,4 @@
+// screens/OTPScreen.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -9,34 +10,33 @@ import {
   Platform,
   ScrollView,
   Image,
-  Keyboard,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { useRoute, RouteProp } from '@react-navigation/native';
-
-
-
-
+import authService from '../src/services/auth.service';
 
 type RootStackParamList = {
   ForgotPassword: undefined;
-  OTP: { email: string }; 
+  OTP: { email: string };
+  ChangePassword: { resetToken: string };
 };
 
-
 const OTPScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'ForgotPassword'>>();
-const route = useRoute<RouteProp<RootStackParamList, 'OTP'>>();
-const { email } = route.params;
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'OTP'>>();
+  const { email } = route.params;
+
   const [otpValue, setOtpValue] = useState('');
   const [timer, setTimer] = useState(60);
   const [isFocused, setIsFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const hiddenInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    // Auto focus when screen loads
     setTimeout(() => {
       hiddenInputRef.current?.focus();
     }, 100);
@@ -49,15 +49,11 @@ const { email } = route.params;
   }, []);
 
   const formatTimer = (sec: number) => {
-    const m = Math.floor(sec / 60)
-      .toString()
-      .padStart(2, '0');
     const s = (sec % 60).toString().padStart(2, '0');
     return `${s}`;
   };
 
   const handleOtpChange = (text: string) => {
-    // Only allow digits and max 6 characters
     const cleanText = text.replace(/[^0-9]/g, '').slice(0, 6);
     setOtpValue(cleanText);
   };
@@ -66,24 +62,62 @@ const { email } = route.params;
     hiddenInputRef.current?.focus();
   };
 
-  const handleResend = () => {
-    if (timer === 0) {
-      setOtpValue('');
-      setTimer(60);
-      setTimeout(() => {
-        hiddenInputRef.current?.focus();
-      }, 100);
-      // Call resend API here if needed
-      console.log('Resending OTP...');
+  /**
+   * 🔄 RESEND OTP - GỌI BACKEND
+   */
+  const handleResend = async () => {
+    if (timer === 0 && !resending) {
+      setResending(true);
+
+      try {
+        const result = await authService.resendOtp(email);
+
+        if (result.success) {
+          Alert.alert('Success', 'OTP has been resent to your email');
+          setOtpValue('');
+          setTimer(60);
+          setTimeout(() => {
+            hiddenInputRef.current?.focus();
+          }, 100);
+        } else {
+          Alert.alert('Error', result.message);
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+      } finally {
+        setResending(false);
+      }
     }
   };
 
-  const handleConfirm = () => {
-    if (otpValue.length === 6) {
-      console.log('Confirm OTP:', otpValue);
-      // Send OTP to server here
-    } else {
+  /**
+   * ✅ CONFIRM OTP - GỌI BACKEND
+   */
+  const handleConfirm = async () => {
+    if (otpValue.length !== 6) {
       Alert.alert('Error', 'Please enter all 6 digits');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await authService.confirmOtp(otpValue);
+
+      if (result.success && result.resetToken) {
+        Alert.alert('Success', 'OTP verified successfully!');
+        
+        // Navigate to Change Password screen with reset token
+        navigation.navigate('ChangePassword', { 
+          resetToken: result.resetToken 
+        });
+      } else {
+        Alert.alert('Error', result.message || 'Invalid OTP');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,25 +126,20 @@ const { email } = route.params;
     for (let i = 0; i < 6; i++) {
       const digit = otpValue[i] || '';
       const isActive = isFocused && i === otpValue.length;
-      
+
       boxes.push(
         <View
           key={i}
           style={[
             styles.otpInputWrapper,
             isActive && styles.activeOtpInput,
-            digit && styles.filledOtpInput
+            digit && styles.filledOtpInput,
           ]}
         >
-          <Text style={[
-            styles.otpText,
-            isActive && styles.activeOtpText
-          ]}>
+          <Text style={[styles.otpText, isActive && styles.activeOtpText]}>
             {digit}
           </Text>
-          {isActive && (
-            <View style={styles.cursor} />
-          )}
+          {isActive && <View style={styles.cursor} />}
         </View>
       );
     }
@@ -136,12 +165,14 @@ const { email } = route.params;
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.subText}>
-  We’ve sent an OTP code to your email,{"\n"}
-  <Text style={{ color: '#2260FF' }}>{email}</Text>
-</Text>
-
+          We've sent an OTP code to your email,{'\n'}
+          <Text style={{ color: '#2260FF' }}>{email}</Text>
+        </Text>
 
         {/* Hidden TextInput for handling input */}
         <TextInput
@@ -155,6 +186,7 @@ const { email } = route.params;
           style={styles.hiddenInput}
           autoFocus
           caretHidden
+          editable={!loading}
         />
 
         {/* OTP Display Boxes */}
@@ -162,23 +194,38 @@ const { email } = route.params;
           style={styles.otpContainer}
           onPress={handleOtpPress}
           activeOpacity={1}
+          disabled={loading}
         >
           {renderOtpBoxes()}
         </TouchableOpacity>
 
         {/* Confirm Button */}
-        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-          <Text style={styles.confirmText}>Confirm</Text>
+        <TouchableOpacity
+          style={[styles.confirmButton, loading && styles.confirmButtonDisabled]}
+          onPress={handleConfirm}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.confirmText}>Confirm</Text>
+          )}
         </TouchableOpacity>
 
         {/* Resend timer */}
         <View style={styles.resendContainer}>
           {timer === 0 ? (
-            <TouchableOpacity onPress={handleResend}>
-              <Text style={styles.resendText}>Resend OTP</Text>
+            <TouchableOpacity onPress={handleResend} disabled={resending}>
+              {resending ? (
+                <ActivityIndicator color="#2260FF" />
+              ) : (
+                <Text style={styles.resendText}>Resend OTP</Text>
+              )}
             </TouchableOpacity>
           ) : (
-            <Text style={styles.timerText}>Resend available in {formatTimer(timer)}s</Text>
+            <Text style={styles.timerText}>
+              Resend available in {formatTimer(timer)}s
+            </Text>
           )}
         </View>
       </ScrollView>
@@ -197,7 +244,6 @@ const styles = StyleSheet.create({
     paddingTop: 160,
     justifyContent: 'flex-start',
   },
-  // Header
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -236,10 +282,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     lineHeight: 24,
     fontFamily: Platform.select({
-    ios: 'LeagueSpartan-Medium',
-    android: 'LeagueSpartan-Medium',
-    default: 'System',
-  }),
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
+      default: 'System',
+    }),
   },
   hiddenInput: {
     position: 'absolute',
@@ -297,17 +343,20 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   confirmButton: {
-   backgroundColor: '#2260FF',
+    backgroundColor: '#2260FF',
     height: 50,
     borderRadius: 25,
     alignItems: 'center',
     width: 200,
-     alignSelf: 'center',
+    alignSelf: 'center',
     justifyContent: 'center',
     marginTop: 25,
   },
+  confirmButtonDisabled: {
+    opacity: 0.6,
+  },
   confirmText: {
-   color: '#FFFFFF',
+    color: '#FFFFFF',
     fontSize: 18,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
@@ -320,14 +369,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
-   color: '#2260FF',
+    color: '#2260FF',
     fontSize: 16,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
-   
   },
   timerText: {
     color: '#7D8A95',
