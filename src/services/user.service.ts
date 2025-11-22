@@ -1,6 +1,7 @@
 // src/services/user.service.ts
 import userApi from '../api/user.api';
 import StorageService from '../utils/storage';
+import { authEvents, AUTH_EVENTS } from '../utils/eventEmitter';
 import {
   UserProfile,
   UpdateProfileRequest,
@@ -89,6 +90,7 @@ class UserService {
 
   async logout(): Promise<void> {
     await StorageService.clearAll();
+    authEvents.emit(AUTH_EVENTS.LOGOUT);
   }
 
 

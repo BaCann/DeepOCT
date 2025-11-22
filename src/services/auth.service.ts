@@ -1,5 +1,7 @@
 import authApi from '../api/auth.api';
 import StorageService from '../utils/storage';
+// import { authEvents, AUTH_EVENTS } from '../utils/eventEmitter';
+
 import {
   UserLogin,
   UserRegister,
@@ -131,9 +133,10 @@ class AuthService {
   }
 
 
-  async logout(): Promise<void> {
-    await StorageService.clearAll();
-  }
+  // async logout(): Promise<void> {
+  //   await StorageService.clearAll();
+  //   authEvents.emit(AUTH_EVENTS.LOGOUT);
+  // }
 
 
   async isAuthenticated(): Promise<boolean> {

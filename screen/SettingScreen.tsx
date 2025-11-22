@@ -89,31 +89,25 @@ const SettingScreen = () => {
     navigation.navigate('ChangePasswordInApp' as any);
   };
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+const handleLogout = () => {
+  Alert.alert(
+    'Logout',
+    'Are you sure you want to logout?',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await userService.logout();
         },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await userService.logout();
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Auth' as any }],
-              })
-            );
-          },
-        },
-      ]
-    );
-  };
+      },
+    ]
+  );
+};
 
   const handleDeleteAccount = () => {
     Alert.alert(

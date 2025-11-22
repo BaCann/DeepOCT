@@ -1,3 +1,4 @@
+// src/screens/CameraScreen.tsx
 import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
@@ -22,7 +23,7 @@ const CameraScreen = () => {
   const [facing, setFacing] = useState<CameraFacing>('back');
   const [isPermitted, setIsPermitted] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   const requestCameraPermission = async () => {
     try {
@@ -111,7 +112,15 @@ const CameraScreen = () => {
       });
 
       await CameraRoll.save(cropped.path, { type: 'photo' });
-      Alert.alert('Success', 'Photo has been saved to your gallery!');
+      
+      navigation.navigate('Tabs', {
+        screen: 'home',
+        params: {
+          selectedImage: cropped.path,
+        },
+      });
+      
+      Alert.alert('Success', 'Photo captured! You can now diagnose it.');
     } catch (e) {
       console.log('Failed to take or crop photo:', e);
     }
@@ -121,6 +130,7 @@ const CameraScreen = () => {
     try {
       const granted = await requestPhotoLibraryPermission();
       if (!granted) return;
+      
       const image = await ImagePicker.openPicker({
         width: 300,
         height: 300,
@@ -128,7 +138,14 @@ const CameraScreen = () => {
         mediaType: 'photo',
       });
 
-      Alert.alert('Selected Image', image.path);
+      navigation.navigate('Tabs', {
+        screen: 'home',
+        params: {
+          selectedImage: image.path,
+        },
+      });
+      
+      Alert.alert('Success', 'Image selected! You can now diagnose it.');
     } catch (e) {
       console.log('Failed to select image:', e);
     }
@@ -157,21 +174,20 @@ const CameraScreen = () => {
           <FontAwesome name="close" size={30} color="#fff" />
         </TouchableOpacity>
 
-        {/* --- Flash button --- */}
         <TouchableOpacity 
-            onPress={toggleFlash} 
-            style={styles.flashButton}
-            disabled={facing === 'front'}
+          onPress={toggleFlash} 
+          style={styles.flashButton}
+          disabled={facing === 'front'}
         >
           <FontAwesome
             name="bolt"
             size={26}
             color={
-                facing === 'front' 
-                    ? '#888' 
-                    : flashOn 
-                        ? '#FFD700' 
-                        : '#fff'
+              facing === 'front' 
+                ? '#888' 
+                : flashOn 
+                  ? '#FFD700' 
+                  : '#fff'
             }
           />
         </TouchableOpacity>
@@ -182,9 +198,9 @@ const CameraScreen = () => {
         style={styles.camera}
         type={facing === 'back' ? RNCamera.Constants.Type.back : RNCamera.Constants.Type.front}
         flashMode={
-            facing === 'back' && flashOn
-                ? RNCamera.Constants.FlashMode.torch
-                : RNCamera.Constants.FlashMode.off
+          facing === 'back' && flashOn
+            ? RNCamera.Constants.FlashMode.torch
+            : RNCamera.Constants.FlashMode.off
         }
         captureAudio={false}
       >

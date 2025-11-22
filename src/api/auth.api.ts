@@ -41,11 +41,11 @@ class AuthApi {
   }
 
 
-  async refreshToken(refreshToken: string): Promise<LoginResponse> {
-    return apiClient.post<LoginResponse>(API_CONFIG.ENDPOINTS.REFRESH_TOKEN, {
-      refresh_token: refreshToken,
-    });
-  }
+  // async refreshToken(refreshToken: string): Promise<LoginResponse> {
+  //   return apiClient.post<LoginResponse>(API_CONFIG.ENDPOINTS.REFRESH_TOKEN, {
+  //     refresh_token: refreshToken,
+  //   });
+  // }
 }
 
 export default new AuthApi();

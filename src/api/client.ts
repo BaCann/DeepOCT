@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG, getBaseUrl } from './config';
 import StorageService from '../utils/storage';
+import { authEvents, AUTH_EVENTS } from '../utils/eventEmitter';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -63,9 +64,8 @@ class ApiClient {
               return this.client(originalRequest);
             }
           } catch (refreshError) {
-            // Refresh token thất bại -> Logout
             await StorageService.clearAll();
-            // TODO: Navigate to login screen
+            authEvents.emit(AUTH_EVENTS.TOKEN_EXPIRED);
             return Promise.reject(refreshError);
           }
         }
