@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Alert,
   RefreshControl,
   Platform,
 } from 'react-native';
@@ -17,6 +16,10 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import predictionService from '../src/services/prediction.service';
 import { PredictionHistory, DISEASE_COLORS } from '../src/types/prediction.types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CustomDialog from '../components/dialog/CustomDialog'; // 👈 IMPORT CUSTOM DIALOG
+
+// Định nghĩa các chế độ của dialog
+type DialogMode = 'error' | 'deleteSingleConfirm' | 'success'; 
 
 const PredictionHistoryScreen = () => {
   const navigation = useNavigation<any>();
@@ -31,11 +34,92 @@ const PredictionHistoryScreen = () => {
   const [totalItems, setTotalItems] = useState(0);
   const pageSize = 5;
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogMode, setDialogMode] = useState<DialogMode>('error');
+  const [dialogShowCancel, setDialogShowCancel] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<PredictionHistory | null>(null);
+
+
+  const showDialog = (
+    title: string, 
+    message: string, 
+    mode: DialogMode, 
+    showCancel: boolean = false
+  ) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogMode(mode);
+    setDialogShowCancel(showCancel);
+    setDialogVisible(true);
+  };
+
   useFocusEffect(
     useCallback(() => {
       loadHistory(currentPage);
     }, [currentPage])
   );
+
+  // ===============================================
+  // MARK: - DIALOG & DELETION LOGIC
+  // ===============================================
+
+  const executeSingleDelete = async (item: PredictionHistory) => {
+    const result = await predictionService.delete(item.id);
+    
+    if (result.success) {
+      showDialog('Success', 'Prediction deleted successfully.', 'success');
+      // Tải lại lịch sử sau khi xóa
+      reloadHistoryAfterDelete(1);
+    } else {
+      showDialog('Error', result.message || 'Failed to delete prediction.', 'error');
+    }
+  };
+  
+  const reloadHistoryAfterDelete = (deletedCount: number) => {
+      const newTotalItems = totalItems - deletedCount;
+      const newTotalPages = Math.ceil(newTotalItems / pageSize);
+      let pageToLoad = currentPage;
+
+      // Nếu trang hiện tại trống sau khi xóa, quay lại trang trước
+      if (history.length <= deletedCount && currentPage > 1) {
+          pageToLoad = currentPage - 1;
+      }
+
+      if (pageToLoad !== currentPage) {
+          setCurrentPage(pageToLoad);
+      } else {
+          loadHistory(pageToLoad);
+      }
+      setTotalPages(newTotalPages);
+      setTotalItems(newTotalItems);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    if (dialogMode === 'deleteSingleConfirm' && itemToDelete) {
+      // Thực hiện xóa sau khi xác nhận
+      executeSingleDelete(itemToDelete);
+      setItemToDelete(null);
+    }
+    // Các mode 'success' hoặc 'error' chỉ cần đóng dialog (setDialogVisible(false) đã xử lý)
+  };
+
+  const handleDelete = (item: PredictionHistory) => {
+    setItemToDelete(item);
+    showDialog(
+      'Delete Prediction',
+      'Are you sure you want to delete this prediction?',
+      'deleteSingleConfirm',
+      true // showCancel
+    );
+  };
+
+  // ===============================================
+  // MARK: - DATA LOADING
+  // ===============================================
 
   const loadHistory = async (page: number) => {
     if (page === 1 && !refreshing) {
@@ -50,7 +134,8 @@ const PredictionHistoryScreen = () => {
       setTotalItems(result.total);
       setTotalPages(Math.ceil(result.total / result.page_size));
     } else {
-      Alert.alert('Error', result.message || 'Failed to load history');
+      // Thay Alert thành CustomDialog
+      showDialog('Error', result.message || 'Failed to load history', 'error');
     }
 
     setLoading(false);
@@ -68,97 +153,67 @@ const PredictionHistoryScreen = () => {
       loadHistory(newPage);
     }
   };
-
+  
   const handleItemPress = (item: PredictionHistory) => {
     navigation.navigate('PredictionDetail', { predictionId: item.id });
   };
 
-  const handleDelete = (item: PredictionHistory) => {
-    Alert.alert(
-      'Delete Prediction',
-      'Are you sure you want to delete this prediction?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            const result = await predictionService.delete(item.id);
-            if (result.success) {
-              Alert.alert('Success', 'Prediction deleted');
-              const newTotalItems = totalItems - 1;
-              const newTotalPages = Math.ceil(newTotalItems / pageSize);
 
-              let pageToLoad = currentPage;
-              if (history.length === 1 && currentPage > 1) {
-                pageToLoad = currentPage - 1;
-              }
+  // ===============================================
+  // MARK: - RENDERING
+  // ===============================================
 
-              if (pageToLoad !== currentPage) {
-                setCurrentPage(pageToLoad);
-              } else {
-                loadHistory(pageToLoad);
-              }
-              setTotalPages(newTotalPages);
-              setTotalItems(newTotalItems);
-            } else {
-              Alert.alert('Error', result.message);
-            }
-          },
-        },
-      ]
-    );
-  };
+  const renderItem = ({ item }: { item: PredictionHistory }) => {
+    return (
+      <TouchableOpacity
+        style={styles.historyItem}
+        onPress={() => handleItemPress(item)}
+        activeOpacity={0.7}
+      >
+        {/* Thumbnail */}
+        <Image
+          source={{ uri: item.thumbnail_url }}
+          style={styles.thumbnail}
+          resizeMode="cover"
+        />
 
-  const renderItem = ({ item }: { item: PredictionHistory }) => (
-    <TouchableOpacity
-      style={styles.historyItem}
-      onPress={() => handleItemPress(item)}
-      activeOpacity={0.7}
-    >
-      {/* Thumbnail */}
-      <Image
-        source={{ uri: item.thumbnail_url }}
-        style={styles.thumbnail}
-        resizeMode="cover"
-      />
-
-      {/* Info */}
-      <View style={styles.historyInfo}>
-        <View style={styles.historyHeader}>
-          <View
-            style={[
-              styles.diseaseBadge,
-              { backgroundColor: DISEASE_COLORS[item.predicted_class] || '#9CA3AF' },
-            ]}
-          >
-            <Text style={styles.diseaseText}>{item.predicted_class}</Text>
+        {/* Info */}
+        <View style={styles.historyInfo}>
+          <View style={styles.historyHeader}>
+            <View
+              style={[
+                styles.diseaseBadge,
+                { backgroundColor: DISEASE_COLORS[item.predicted_class] || '#9CA3AF' },
+              ]}
+            >
+              <Text style={styles.diseaseText}>{item.predicted_class}</Text>
+            </View>
+            <Text style={styles.confidenceText}>
+              {(item.confidence * 100).toFixed(1)}%
+            </Text>
           </View>
-          <Text style={styles.confidenceText}>
-            {(item.confidence * 100).toFixed(1)}%
+
+          <Text style={styles.dateText}>
+            {new Date(item.created_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </Text>
         </View>
 
-        <Text style={styles.dateText}>
-          {new Date(item.created_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
-      </View>
-
-      {/* Delete button */}
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDelete(item)}
-      >
-        <Icon name="delete-outline" size={24} color="#EF4444" />
+        {/* Delete button */}
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDelete(item)}
+        >
+          <Icon name="delete-outline" size={24} color="#EF4444" />
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -236,7 +291,7 @@ const PredictionHistoryScreen = () => {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Stats - Đã cập nhật */}
+      {/* Stats */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{totalItems}</Text>
@@ -256,7 +311,6 @@ const PredictionHistoryScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
-        // Footer giờ là nút phân trang
         ListFooterComponent={renderPaginationButtons}
         refreshControl={
           <RefreshControl
@@ -266,6 +320,19 @@ const PredictionHistoryScreen = () => {
           />
         }
         showsVerticalScrollIndicator={false}
+      />
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        onCancel={() => setDialogVisible(false)} // Hủy bỏ sẽ đóng dialog
+        showCancelButton={dialogShowCancel}
+        confirmText={dialogMode === 'deleteSingleConfirm' ? 'Delete' : 'OK'}
+        confirmButtonColor={dialogMode === 'deleteSingleConfirm' ? '#EF4444' : '#2260FF'}
+        cancelText='Cancel'
       />
     </SafeAreaView>
   );
@@ -344,22 +411,24 @@ const styles = StyleSheet.create({
   },
   historyItem: {
     flexDirection: 'row',
-    backgroundColor: '#ECF1FF',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     alignItems: 'center',
-    shadowColor: '#2260FF',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   thumbnail: {
     width: 80,
     height: 80,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ECF1FF',
   },
   historyInfo: {
     flex: 1,
@@ -451,7 +520,6 @@ const styles = StyleSheet.create({
     color: '#000000',
     textAlign: 'center',
   },
-  // Style mới cho phân trang
   paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

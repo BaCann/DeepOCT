@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import predictionService from '../src/services/prediction.service';
-import { PredictionResult, DISEASE_INFO, DISEASE_COLORS, GradCAMAnalysis } from '../src/types/prediction.types'; // Giả định import GradCAMAnalysis
+import { PredictionResult, DISEASE_INFO, DISEASE_COLORS } from '../src/types/prediction.types'; // Đã loại bỏ GradCAMAnalysis
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const { width } = Dimensions.get('window');
@@ -49,7 +49,6 @@ const PredictionDetailScreen = () => {
     setLoading(false);
   };
 
-
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -67,15 +66,6 @@ const PredictionDetailScreen = () => {
 
   const diseaseInfo = DISEASE_INFO[prediction.predicted_class];
   const diseaseColor = DISEASE_COLORS[prediction.predicted_class];
-  const analysisResult = prediction.analysis_result as GradCAMAnalysis | null; // Lấy kết quả phân tích
-
-  // --- Hàm hỗ trợ render Analysis ---
-  const renderAnalysisRow = (label: string, value: string) => (
-    <View style={styles.metadataRow}>
-      <Text style={styles.analysisLabel}>{label}</Text>
-      <Text style={styles.analysisValue}>{value}</Text>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -175,7 +165,7 @@ const PredictionDetailScreen = () => {
           ))}
         </View>
 
-        {/* Heatmap (if available) */}
+        {/* Heatmap (if available) - Chỉ giữ lại phần hiển thị ảnh và hint */}
         {prediction.heatmap_url && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Heatmap Visualization</Text>
@@ -187,38 +177,6 @@ const PredictionDetailScreen = () => {
             <Text style={styles.heatmapHint}>
               Red areas indicate regions the model focused on (Grad-CAM)
             </Text>
-
-            {/* --- NEW: Quantitative Heatmap Analysis --- */}
-            <View style={styles.analysisContainer}>
-              <Text style={styles.analysisTitle}>Quantitative Analysis 📈</Text>
-              {analysisResult && analysisResult.analysis_status === 'SUCCESS' ? (
-                <>
-                  {renderAnalysisRow(
-                    'Hot Area Coverage:',
-                    `${analysisResult.hot_area_percent.toFixed(2)}%`,
-                  )}
-                  {renderAnalysisRow(
-                    'Bounding Box Width:',
-                    `${analysisResult.bb_width_pixels} px`,
-                  )}
-                  {renderAnalysisRow(
-                    'Bounding Box Height:',
-                    `${analysisResult.bb_height_pixels} px`,
-                  )}
-                  {renderAnalysisRow(
-                    'Image Resolution:',
-                    analysisResult.image_size_pixels || 'N/A',
-                  )}
-                </>
-              ) : (
-                <Text style={styles.analysisError}>
-                  {analysisResult?.analysis_status === 'ERROR' 
-                    ? `Analysis failed: ${analysisResult.error_detail}` 
-                    : 'Quantitative analysis data not available.'}
-                </Text>
-              )}
-            </View>
-            {/* --- END NEW --- */}
           </View>
         )}
 
@@ -474,56 +432,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
   },
-  // --- NEW STYLES FOR ANALYSIS ---
-  analysisContainer: {
-    marginTop: 20,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#FFFFFF',
-  },
-  analysisTitle: {
-    fontSize: 15,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
-      default: 'System',
-    }),
-    color: '#000000',
-    marginBottom: 10,
-  },
-  analysisLabel: {
-    fontSize: 14,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Light',
-      android: 'LeagueSpartan-Light',
-      default: 'System',
-    }),
-    color: '#4B5563', // Grayish color for label
-  },
-  analysisValue: {
-    fontSize: 14,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
-    color: '#2260FF',
-    flex: 1,
-    textAlign: 'right',
-  },
-  analysisError: {
-    fontSize: 12,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Light',
-      android: 'LeagueSpartan-Light',
-      default: 'System',
-    }),
-    color: '#EF4444', // Red for error
-    fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: 5,
-  },
-  // --- END NEW STYLES ---
   metadataRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

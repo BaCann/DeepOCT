@@ -148,7 +148,7 @@ const CameraScreen = () => {
         },
       });
       
-      showDialog('Success', 'Photo captured! You can now diagnose it.', 'success');
+    //  showDialog('Success', 'Photo captured! You can now diagnose it.', 'success');
     } catch (e) {
       console.log('Failed to take or crop photo:', e);
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -51,10 +51,10 @@ const WelcomeScreen = () => {
         </View>
 
         {/* Phần dưới */}
-       <Text style={styles.description}>
-        DeepOCT uses AI to analyze OCT images,{'\n'}
-        supporting ophthalmologists in accurate diagnosis.
-      </Text>
+        <Text style={styles.description}>
+          DeepOCT uses AI to analyze OCT images,{'\n'}
+          supporting ophthalmologists in accurate diagnosis.
+        </Text>
 
         <View style={styles.bottomContent}>
 
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   }),
   color: '#070707',
   textAlign: 'center', //căn đều 2 bên
-  lineHeight: 15,       //giảm dãn dòng
+  lineHeight: 15,       //giảm dãn dòng
   marginBottom: 20,
   paddingHorizontal: 10,
 },
