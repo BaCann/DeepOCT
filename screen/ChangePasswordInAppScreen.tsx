@@ -9,13 +9,13 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -29,19 +29,40 @@ const ChangePasswordInAppScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
+
+  const showDialog = (title: string, message: string, type: 'success' | 'error' | 'info') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    // Nếu là thông báo thành công, quay lại màn hình trước
+    if (dialogType === 'success') {
+      navigation.goBack();
+    }
+  };
+
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showDialog('Error', 'Please fill in all fields', 'error');
       return;
     }
 
     if (newPassword.length < 6) {
-      Alert.alert('Error', 'New password must be at least 6 characters');
+      showDialog('Error', 'New password must be at least 6 characters', 'error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
+      showDialog('Error', 'New passwords do not match', 'error');
       return;
     }
 
@@ -51,17 +72,12 @@ const ChangePasswordInAppScreen = () => {
       const result = await userService.changePasswordInApp(currentPassword, newPassword);
 
       if (result.success) {
-        Alert.alert('Success', 'Password changed successfully!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack(),
-          },
-        ]);
+        showDialog('Success', 'Password changed successfully!', 'success');
       } else {
-        Alert.alert('Error', result.message);
+        showDialog('Error', result.message, 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to change password. Please try again.');
+      showDialog('Error', 'Failed to change password. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -192,6 +208,15 @@ const ChangePasswordInAppScreen = () => {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };

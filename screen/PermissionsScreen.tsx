@@ -9,12 +9,19 @@ import {
   ScrollView,
   Image,
   Alert,
-  Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
-import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
+import {
+  check,
+  request,
+  PERMISSIONS,
+  RESULTS,
+  openSettings,
+} from 'react-native-permissions';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -22,7 +29,7 @@ interface Permission {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  iconName: string;
   status: string;
   permission: any;
 }
@@ -31,9 +38,38 @@ const PermissionsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [permissions, setPermissions] = useState<Permission[]>([]);
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogHasSettings, setDialogHasSettings] = useState(false);
+  const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
+
+
   useEffect(() => {
     loadPermissions();
   }, []);
+
+  const showDialog = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'info',
+    hasSettings: boolean = false
+  ) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogHasSettings(hasSettings);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    if (dialogHasSettings) {
+      openSettings();
+    }
+    setDialogHasSettings(false);
+  };
 
   const loadPermissions = async () => {
     const cameraPermission = Platform.select({
@@ -46,15 +82,19 @@ const PermissionsScreen = () => {
       ios: PERMISSIONS.IOS.PHOTO_LIBRARY,
     });
 
-    const cameraStatus = cameraPermission ? await check(cameraPermission) : RESULTS.UNAVAILABLE;
-    const storageStatus = storagePermission ? await check(storagePermission) : RESULTS.UNAVAILABLE;
+    const cameraStatus = cameraPermission
+      ? await check(cameraPermission)
+      : RESULTS.UNAVAILABLE;
+    const storageStatus = storagePermission
+      ? await check(storagePermission)
+      : RESULTS.UNAVAILABLE;
 
     setPermissions([
       {
         id: 'camera',
         title: 'Camera',
         description: 'Required to capture OCT images',
-        icon: '📷',
+        iconName: 'camera',
         status: cameraStatus,
         permission: cameraPermission,
       },
@@ -62,7 +102,7 @@ const PermissionsScreen = () => {
         id: 'storage',
         title: 'Photos & Media',
         description: 'Access to save and load OCT images',
-        icon: '🖼️',
+        iconName: 'image',
         status: storageStatus,
         permission: storagePermission,
       },
@@ -100,50 +140,51 @@ const PermissionsScreen = () => {
 
   const handlePermissionPress = async (permission: Permission) => {
     if (permission.status === RESULTS.BLOCKED) {
-      Alert.alert(
+      showDialog(
         'Permission Blocked',
         `${permission.title} permission is blocked. Please enable it in Settings.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Open Settings',
-            onPress: () => openSettings(),
-          },
-        ]
+        'error',
+        true
       );
       return;
     }
 
     if (permission.status === RESULTS.GRANTED) {
-      Alert.alert('Permission Already Granted', `${permission.title} permission is already enabled.`);
+      showDialog(
+        'Permission Already Granted',
+        `${permission.title} permission is already enabled.`,
+        'info'
+      );
       return;
     }
 
     try {
       const result = await request(permission.permission);
-      await loadPermissions(); // Reload to update UI
+      await loadPermissions();
 
       if (result === RESULTS.GRANTED) {
-        Alert.alert('Success', `${permission.title} permission granted!`);
+        showDialog('Success', `${permission.title} permission granted!`, 'success');
       } else if (result === RESULTS.BLOCKED) {
-        Alert.alert(
+        showDialog(
           'Permission Blocked',
           'Please enable this permission in Settings',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => openSettings() },
-          ]
+          'error',
+          true
         );
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to request permission');
+      showDialog('Error', 'Failed to request permission', 'error');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Image
             source={require('../assets/Vector_back.png')}
             style={styles.backIcon}
@@ -160,7 +201,8 @@ const PermissionsScreen = () => {
 
       <ScrollView contentContainerStyle={styles.scrollView}>
         <Text style={styles.description}>
-          DeepOCT needs these permissions to function properly. Tap on any permission to enable it.
+          DeepOCT needs these permissions to function properly. Tap on any
+          permission to enable it.
         </Text>
 
         {permissions.map((permission) => (
@@ -169,10 +211,17 @@ const PermissionsScreen = () => {
             style={styles.permissionCard}
             onPress={() => handlePermissionPress(permission)}
           >
-            <Text style={styles.permissionIcon}>{permission.icon}</Text>
+            <FontAwesome
+              name={permission.iconName}
+              size={32}
+              color="#444"
+              style={{ marginRight: 12 }}
+            />
             <View style={styles.permissionInfo}>
               <Text style={styles.permissionTitle}>{permission.title}</Text>
-              <Text style={styles.permissionDescription}>{permission.description}</Text>
+              <Text style={styles.permissionDescription}>
+                {permission.description}
+              </Text>
             </View>
             <View
               style={[
@@ -180,27 +229,36 @@ const PermissionsScreen = () => {
                 { backgroundColor: getStatusColor(permission.status) },
               ]}
             >
-              <Text style={styles.statusText}>{getStatusText(permission.status)}</Text>
+              <Text style={styles.statusText}>
+                {getStatusText(permission.status)}
+              </Text>
             </View>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={styles.settingsButton} onPress={() => openSettings()}>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => openSettings()}
+        >
           <Text style={styles.settingsButtonText}>Open App Settings</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText={dialogHasSettings ? 'Open Settings' : 'OK'}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  scrollView: {
-    padding: 20,
-  },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  scrollView: { padding: 20 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -208,21 +266,10 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 10,
   },
-  backButton: {
-    padding: 20,
-    transform: [{ translateX: 10 }],
-  },
-  backIcon: {
-    width: 16,
-    height: 16,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  placeholder: {
-    width: 44,
-  },
+  backButton: { padding: 20, transform: [{ translateX: 10 }] },
+  backIcon: { width: 16, height: 16 },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  placeholder: { width: 44 },
   headerTitle: {
     fontSize: 28,
     fontFamily: Platform.select({
@@ -256,13 +303,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  permissionIcon: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  permissionInfo: {
-    flex: 1,
-  },
+  permissionInfo: { flex: 1 },
   permissionTitle: {
     fontSize: 16,
     fontFamily: Platform.select({
@@ -282,11 +323,7 @@ const styles = StyleSheet.create({
     }),
     color: '#64748B',
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
+  statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
   statusText: {
     fontSize: 12,
     fontFamily: Platform.select({

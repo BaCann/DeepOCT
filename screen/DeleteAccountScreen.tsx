@@ -9,15 +9,17 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
+type DialogMode = 'error' | 'finalConfirm' | 'successDelete'; 
+
 
 const DeleteAccountScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -25,58 +27,87 @@ const DeleteAccountScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogMode, setDialogMode] = useState<DialogMode>('error');
+  const [dialogShowCancel, setDialogShowCancel] = useState(false);
+
+  const showDialog = (
+    title: string, 
+    message: string, 
+    mode: DialogMode, 
+    showCancel: boolean = false
+  ) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogMode(mode);
+    setDialogShowCancel(showCancel);
+    setDialogVisible(true);
+  };
+
+  const executeDelete = async () => {
+    setLoading(true);
+
+    try {
+      const result = await userService.deleteAccount(password);
+
+      setLoading(false); 
+
+      if (result.success) {
+        // Thông báo thành công: chỉ có nút OK
+        showDialog(
+          'Account Deleted',
+          'Your account has been permanently deleted. We are sorry to see you go.',
+          'successDelete',
+          false 
+        );
+      } else {
+        // Lỗi API/Sai mật khẩu: chỉ có nút OK
+        showDialog('Error', result.message, 'error', false); 
+      }
+    } catch (error) {
+      setLoading(false); 
+      showDialog('Error', 'Failed to delete account. Please try again.', 'error', false);
+    } 
+  };
+
+
+  const handleDialogConfirm = () => {
+    if (dialogMode === 'finalConfirm') {
+      // Ẩn dialog xác nhận trước khi gọi API
+      setDialogVisible(false); 
+      executeDelete(); 
+    } else if (dialogMode === 'successDelete') {
+      // Xóa thành công: đóng dialog và chuyển màn hình
+      setDialogVisible(false);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Auth' as any }],
+        })
+      );
+    } else {
+      // Các lỗi (error mode): chỉ đóng dialog
+      setDialogVisible(false); 
+    }
+  };
+
+
   const handleDeleteAccount = async () => {
     if (!password) {
-      Alert.alert('Error', 'Please enter your password to confirm');
+      // Lỗi xác thực đầu vào: chỉ có nút OK
+      showDialog('Error', 'Please enter your password to confirm', 'error', false);
       return;
     }
 
-    Alert.alert(
+    // Hiển thị dialog xác nhận cuối cùng: CÓ 2 nút
+    showDialog(
       'Final Confirmation',
       'Are you absolutely sure? This action CANNOT be undone. All your data will be permanently deleted.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete Forever',
-          style: 'destructive',
-          onPress: async () => {
-            setLoading(true);
-
-            try {
-              const result = await userService.deleteAccount(password);
-
-              if (result.success) {
-                Alert.alert(
-                  'Account Deleted',
-                  'Your account has been permanently deleted. We are sorry to see you go.',
-                  [
-                    {
-                      text: 'OK',
-                      onPress: () => {
-                        navigation.dispatch(
-                          CommonActions.reset({
-                            index: 0,
-                            routes: [{ name: 'Auth' as any }],
-                          })
-                        );
-                      },
-                    },
-                  ]
-                );
-              } else {
-                Alert.alert('Error', result.message);
-              }
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete account. Please try again.');
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
+      'finalConfirm',
+      true // Hiển thị nút Cancel
     );
   };
 
@@ -169,6 +200,18 @@ const DeleteAccountScreen = () => {
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        onCancel={() => setDialogVisible(false)}
+        showCancelButton={dialogShowCancel}
+        confirmText={dialogMode === 'finalConfirm' ? 'Delete Forever' : 'OK'}
+        confirmButtonColor={dialogMode === 'finalConfirm' ? '#EF4444' : '#2260FF'}
+      />
     </SafeAreaView>
   );
 };

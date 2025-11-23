@@ -1,4 +1,3 @@
-// screens/ForgotPasswordScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -10,12 +9,12 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import authService from '../src/services/auth.service';
+import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
 
 type RootStackParamList = {
   Login: undefined;
@@ -29,45 +28,56 @@ const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
-  /**
-   * 📧 SEND OTP - GỌI BACKEND
-   */
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('error');
+
+  const showDialog = (title: string, message: string, type: 'success' | 'error') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    
+    if (dialogType === 'success') {
+      navigation.navigate('OTP', { email: email.trim() });
+    }
+  };
+
+
   const handleSendOTP = async () => {
-    // Validate email
-    if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email address');
+    const trimmedEmail = email.trim();
+    
+    if (!trimmedEmail) {
+      showDialog('Error', 'Please enter your email address', 'error');
       return;
     }
 
-    if (!email.includes('@')) {
-      Alert.alert('Error', 'Please enter a valid email address');
+    if (!trimmedEmail.includes('@') || trimmedEmail.length < 5) {
+      showDialog('Error', 'Please enter a valid email address', 'error');
       return;
     }
 
     setLoading(true);
 
     try {
-      const result = await authService.requestResetPassword(email.trim());
+      const result = await authService.requestResetPassword(trimmedEmail);
 
       if (result.success) {
-        Alert.alert(
+        showDialog(
           'Success',
           'OTP has been sent to your email. Please check your inbox.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // Navigate to OTP screen with email
-                navigation.navigate('OTP', { email: email.trim() });
-              },
-            },
-          ]
+          'success'
         );
       } else {
-        Alert.alert('Error', result.message);
+        showDialog('Error', result.message, 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to send OTP. Please try again.');
+      showDialog('Error', 'Failed to send OTP. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -134,6 +144,15 @@ const ForgotPasswordScreen = () => {
           )}
         </TouchableOpacity>
       </ScrollView>
+      
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };

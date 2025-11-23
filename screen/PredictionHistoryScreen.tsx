@@ -21,63 +21,51 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 const PredictionHistoryScreen = () => {
   const navigation = useNavigation<any>();
 
-  // States
   const [history, setHistory] = useState<PredictionHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const pageSize = 20;
+  const pageSize = 5;
 
-  // Load history khi vào screen
   useFocusEffect(
     useCallback(() => {
-      loadHistory(1);
-    }, [])
+      loadHistory(currentPage);
+    }, [currentPage])
   );
 
   const loadHistory = async (page: number) => {
-    if (page === 1) {
+    if (page === 1 && !refreshing) {
       setLoading(true);
-    } else {
-      setLoadingMore(true);
     }
 
     const result = await predictionService.getHistory(page, pageSize);
 
     if (result.success && result.data) {
-      if (page === 1) {
-        // First page - replace
-        setHistory(result.data);
-      } else {
-        // Next pages - append
-        setHistory(prev => [...prev, ...result.data!]);
-      }
-      
-      setCurrentPage(result.page);
+      setHistory(result.data);
+      setCurrentPage(page);
       setTotalItems(result.total);
       setTotalPages(Math.ceil(result.total / result.page_size));
     } else {
-      Alert.alert('Error', result.message);
+      Alert.alert('Error', result.message || 'Failed to load history');
     }
 
     setLoading(false);
-    setLoadingMore(false);
     setRefreshing(false);
   };
 
   const handleRefresh = () => {
     setRefreshing(true);
     loadHistory(1);
+    setCurrentPage(1);
   };
 
-  const handleLoadMore = () => {
-    if (!loadingMore && currentPage < totalPages) {
-      loadHistory(currentPage + 1);
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      loadHistory(newPage);
     }
   };
 
@@ -97,10 +85,22 @@ const PredictionHistoryScreen = () => {
           onPress: async () => {
             const result = await predictionService.delete(item.id);
             if (result.success) {
-              // Remove from list
-              setHistory(prev => prev.filter(h => h.id !== item.id));
-              setTotalItems(prev => prev - 1);
               Alert.alert('Success', 'Prediction deleted');
+              const newTotalItems = totalItems - 1;
+              const newTotalPages = Math.ceil(newTotalItems / pageSize);
+
+              let pageToLoad = currentPage;
+              if (history.length === 1 && currentPage > 1) {
+                pageToLoad = currentPage - 1;
+              }
+
+              if (pageToLoad !== currentPage) {
+                setCurrentPage(pageToLoad);
+              } else {
+                loadHistory(pageToLoad);
+              }
+              setTotalPages(newTotalPages);
+              setTotalItems(newTotalItems);
             } else {
               Alert.alert('Error', result.message);
             }
@@ -129,7 +129,7 @@ const PredictionHistoryScreen = () => {
           <View
             style={[
               styles.diseaseBadge,
-              { backgroundColor: DISEASE_COLORS[item.predicted_class] },
+              { backgroundColor: DISEASE_COLORS[item.predicted_class] || '#9CA3AF' },
             ]}
           >
             <Text style={styles.diseaseText}>{item.predicted_class}</Text>
@@ -170,12 +170,43 @@ const PredictionHistoryScreen = () => {
     </View>
   );
 
-  const renderFooter = () => {
-    if (!loadingMore) return null;
+  const renderPaginationButtons = () => {
+    if (totalPages <= 1) return null;
+
     return (
-      <View style={styles.loadingMore}>
-        <ActivityIndicator color="#2260FF" />
-        <Text style={styles.loadingMoreText}>Loading more...</Text>
+      <View style={styles.paginationContainer}>
+        {/* Previous Button */}
+        <TouchableOpacity
+          style={styles.pageButton}
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <Icon
+            name="chevron-left"
+            size={24}
+            color={currentPage === 1 ? '#9CA3AF' : '#2260FF'}
+          />
+        </TouchableOpacity>
+
+        {/* Page Info */}
+        <View style={styles.pageInfo}>
+          <Text style={styles.pageText}>
+            Page {currentPage} of {totalPages}
+          </Text>
+        </View>
+
+        {/* Next Button */}
+        <TouchableOpacity
+          style={styles.pageButton}
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <Icon
+            name="chevron-right"
+            size={24}
+            color={currentPage === totalPages ? '#9CA3AF' : '#2260FF'}
+          />
+        </TouchableOpacity>
       </View>
     );
   };
@@ -205,7 +236,7 @@ const PredictionHistoryScreen = () => {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Stats */}
+      {/* Stats - Đã cập nhật */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{totalItems}</Text>
@@ -213,8 +244,8 @@ const PredictionHistoryScreen = () => {
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Text style={styles.statValue}>{currentPage}</Text>
-          <Text style={styles.statLabel}>Page {currentPage} of {totalPages}</Text>
+          <Text style={styles.statValue}>{history.length}</Text>
+          <Text style={styles.statLabel}>Current Page Items</Text> 
         </View>
       </View>
 
@@ -225,7 +256,8 @@ const PredictionHistoryScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
-        ListFooterComponent={renderFooter}
+        // Footer giờ là nút phân trang
+        ListFooterComponent={renderPaginationButtons}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -233,8 +265,6 @@ const PredictionHistoryScreen = () => {
             colors={['#2260FF']}
           />
         }
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
@@ -251,6 +281,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? 40 : 0,
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#ECF1FF',
@@ -420,22 +451,35 @@ const styles = StyleSheet.create({
     color: '#000000',
     textAlign: 'center',
   },
-  loadingMore: {
+  // Style mới cho phân trang
+  paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 16,
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#ECF1FF',
   },
-  loadingMoreText: {
-    marginLeft: 8,
+  pageButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginHorizontal: 8,
+    backgroundColor: '#ECF1FF',
+  },
+  pageInfo: {
+    paddingHorizontal: 12,
+  },
+  pageText: {
     fontSize: 14,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Light',
-      android: 'LeagueSpartan-Light',
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
     color: '#2260FF',
-  },
+  }
 });
 
 export default PredictionHistoryScreen;

@@ -9,15 +9,14 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'; // Import isValid for better date checking
 import authService from '../src/services/auth.service';
- 
+import CustomDialog from '../components/dialog/CustomDialog';
 
 
 type RootStackParamList = {
@@ -40,6 +39,29 @@ const RegisterScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('success');
+
+  const showDialog = (title: string, message: string, type: 'success' | 'error') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    
+    // Nếu là thông báo thành công, chuyển sang màn Login
+    if (dialogType === 'success') {
+      navigation.navigate('Login');
+    }
+  };
+
+
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate && event.type !== 'dismissed') {
@@ -52,37 +74,77 @@ const RegisterScreen = () => {
     setShowDatePicker(true);
   };
 
-const handleRegister = async () => {
-    // Validate password match
+
+  const validateInput = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{7,15}$/; 
+
+    if (!name.trim()) {
+      showDialog('Error', 'Full name is required.', 'error');
+      return false;
+    }
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      showDialog('Error', 'Please enter a valid email address.', 'error');
+      return false;
+    }
+    if (password.length < 6) {
+      showDialog('Error', 'Password must be at least 6 characters.', 'error');
+      return false;
+    }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      showDialog('Error', 'Passwords do not match.', 'error');
+      return false;
+    }
+    if (phone.trim() && !phoneRegex.test(phone.trim())) {
+      showDialog('Error', 'Please enter a valid phone number.', 'error');
+      return false;
+    }
+    
+    if (dob) {
+        try {
+            const parts = dob.split('/');
+            if (parts.length !== 3) {
+                showDialog('Error', 'Date of Birth format must be DD/MM/YYYY.', 'error');
+                return false;
+            }
+            const parsedDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            if (!isValid(parsedDate)) {
+                 showDialog('Error', 'Date of Birth is invalid.', 'error');
+                 return false;
+            }
+        } catch {
+             showDialog('Error', 'Date of Birth format must be DD/MM/YYYY.', 'error');
+             return false;
+        }
+    }
+    
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (!validateInput()) {
       return;
     }
 
     setLoading(true);
     try {
       const result = await authService.register({
-        email,
+        email: email.trim(),
         password,
-        full_name: name,
-        mobile_number: phone,
+        full_name: name.trim(),
+        mobile_number: phone.trim(),
         date_of_birth: dob,
       });
-       console.log('Register result:', result); // debug
+      console.log('Register result:', result); 
 
       if (result.success) {
-        Alert.alert('Success', result.message, [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]);
+        showDialog('Success', result.message, 'success');
       } else {
-        Alert.alert('Register Failed', result.message);
+        showDialog('Register Failed', result.message, 'error');
       }
     } catch (error) {
-      console.log('Register error:', error); // debug
-      Alert.alert('Error', 'An unexpected error occurred');
+      console.log('Register error:', error); 
+      showDialog('Error', 'An unexpected error occurred', 'error');
     } finally {
       setLoading(false);
     }
@@ -92,15 +154,13 @@ const handleRegister = async () => {
     navigation.navigate('Welcome');
   };
 
-   const handleSignIn = () => {
-     navigation.navigate('Login');
-
+  const handleSignIn = () => {
+    navigation.navigate('Login');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {/* Header Row: Back + Title + Placeholder */}
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
             <Image
@@ -126,7 +186,8 @@ const handleRegister = async () => {
             placeholderTextColor="#809CFF"
             value={name}
             onChangeText={setName}
-            autoCapitalize="none"
+            autoCapitalize="words" // Gợi ý autoCapitalize
+            editable={!loading}
           />
         </View>
 
@@ -137,10 +198,11 @@ const handleRegister = async () => {
             style={styles.input}
             placeholder="Enter your Email"
             value={email}
-             placeholderTextColor="#809CFF"
+            placeholderTextColor="#809CFF"
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!loading}
           />
         </View>
 
@@ -156,17 +218,19 @@ const handleRegister = async () => {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              editable={!loading}
             />
             <TouchableOpacity
               style={styles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
+              disabled={loading}
             >
               <Image
                 source={
                   showPassword
-                  ? require('../assets/Eye-open.png')
-                  : require('../assets/Eye-off.png')
-                    
+                    ? require('../assets/Eye-open.png')
+                    : require('../assets/Eye-off.png')
+                      
                 }
                 style={styles.eyeIcon}
               />
@@ -186,17 +250,19 @@ const handleRegister = async () => {
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
               autoCapitalize="none"
+              editable={!loading}
             />
             <TouchableOpacity
               style={styles.eyeButton}
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              disabled={loading}
             >
               <Image
                 source={
                   showConfirmPassword
-                  ? require('../assets/Eye-open.png')
-                  : require('../assets/Eye-off.png')
-                    
+                    ? require('../assets/Eye-open.png')
+                    : require('../assets/Eye-off.png')
+                      
                 }
                 style={styles.eyeIcon}
               />
@@ -211,9 +277,11 @@ const handleRegister = async () => {
             style={styles.input}
             placeholder="Enter your Phone number"
             value={phone}
-             placeholderTextColor="#809CFF"
+            placeholderTextColor="#809CFF"
             onChangeText={setPhone}
             autoCapitalize="none"
+            keyboardType="phone-pad"
+            editable={!loading}
           />
         </View>
 
@@ -221,12 +289,12 @@ const handleRegister = async () => {
         {/* Date of birth */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Date of Birth</Text>
-          <TouchableOpacity onPress={showDatepicker}>
+          <TouchableOpacity onPress={showDatepicker} disabled={loading}>
             <View style={styles.input}>
               <Text 
                 style={[
                   styles.inputText, 
-                  !dob && { color: '#809CFF' } // khi chưa có dob thì đổi màu
+                  !dob && { color: '#809CFF' } 
                 ]}
               >
                 {dob || 'DD/MM/YYYY'}
@@ -248,19 +316,36 @@ const handleRegister = async () => {
 
 
         {/* Register Button */}
-        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-          <Text style={styles.registerButtonText}>Register</Text>
+        <TouchableOpacity 
+          style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
+          onPress={handleRegister}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text style={styles.registerButtonText}>Register</Text>
+          )}
         </TouchableOpacity>
 
         {/* Login Link */}
       <View style={styles.loginLinkRow}>
         <Text style={styles.signinText}>Already have an account? </Text>
-        <TouchableOpacity onPress={handleSignIn}>
+        <TouchableOpacity onPress={handleSignIn} disabled={loading}>
           <Text style={styles.loginLinkText}>Sign In</Text>
         </TouchableOpacity>
       </View>
 
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };
@@ -354,7 +439,7 @@ loginLinkText: {
   borderRadius: 10,
   paddingHorizontal: 15,
   fontSize: 16,
-  color: '#809CFF', // màu chữ khi nhập vào
+  color: '#2260FF', 
   fontFamily: Platform.select({
     ios: 'LeagueSpartan-Regular',
     android: 'LeagueSpartan-Regular',
@@ -363,7 +448,7 @@ loginLinkText: {
 },
 inputText: {
   fontSize: 16,
-  color: '#809CFF',
+  color: '#2260FF',
   fontFamily: Platform.select({
     ios: 'LeagueSpartan-Regular',
     android: 'LeagueSpartan-Regular',
@@ -372,7 +457,7 @@ inputText: {
   paddingVertical: 12,
 },
 placeholderText: {
-  color: '#2260FF',
+  color: '#809CFF',
 },
 passwordContainer: {
   flexDirection: 'row',
@@ -398,9 +483,12 @@ eyeIcon: {
     borderRadius: 25,
     alignItems: 'center',
     width: 200,
-     alignSelf: 'center',
+      alignSelf: 'center',
     justifyContent: 'center',
     marginTop: 30,
+  },
+  registerButtonDisabled: {
+    opacity: 0.6,
   },
   registerButtonText: {
     color: '#FFFFFF',

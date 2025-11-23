@@ -4,7 +4,6 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Text,
   Platform,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type CameraFacing = 'front' | 'back';
 
@@ -24,6 +24,33 @@ const CameraScreen = () => {
   const [isPermitted, setIsPermitted] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
   const navigation = useNavigation<any>();
+
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogHasSettings, setDialogHasSettings] = useState(false);
+  const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
+
+  const showDialog = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'info',
+    hasSettings: boolean = false
+  ) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogHasSettings(hasSettings);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    // Logic mở Settings không được thêm vì Alert ban đầu không có option này
+    setDialogHasSettings(false);
+  };
+
 
   const requestCameraPermission = async () => {
     try {
@@ -43,7 +70,7 @@ const CameraScreen = () => {
         setIsPermitted(true);
         return true;
       } else {
-        Alert.alert('Permission Error', 'Please allow Camera access in Settings.');
+        showDialog('Permission Error', 'Please allow Camera access in Settings.', 'error');
         return false;
       }
     } catch {
@@ -65,7 +92,7 @@ const CameraScreen = () => {
       const newResult = await request(permission!);
       if (newResult === RESULTS.GRANTED) return true;
 
-      Alert.alert('Permission Error', 'Please allow Photo Library access in Settings.');
+      showDialog('Permission Error', 'Please allow Photo Library access in Settings.', 'error');
       return false;
     } catch {
       return false;
@@ -84,6 +111,7 @@ const CameraScreen = () => {
         <TouchableOpacity style={styles.permissionButton} onPress={requestCameraPermission}>
           <Text style={styles.permissionButtonText}>Grant Camera Permission</Text>
         </TouchableOpacity>
+        {/* Custom Dialog cũng có thể hiển thị ở đây nếu cần */}
       </View>
     );
   }
@@ -120,7 +148,7 @@ const CameraScreen = () => {
         },
       });
       
-      Alert.alert('Success', 'Photo captured! You can now diagnose it.');
+      showDialog('Success', 'Photo captured! You can now diagnose it.', 'success');
     } catch (e) {
       console.log('Failed to take or crop photo:', e);
     }
@@ -145,7 +173,7 @@ const CameraScreen = () => {
         },
       });
       
-      Alert.alert('Success', 'Image selected! You can now diagnose it.');
+      showDialog('Success', 'Image selected! You can now diagnose it.', 'success');
     } catch (e) {
       console.log('Failed to select image:', e);
     }
@@ -160,7 +188,7 @@ const CameraScreen = () => {
 
   const toggleFlash = () => {
     if (facing === 'front') {
-      Alert.alert('Notice', 'Flash is only available for the rear camera.');
+      showDialog('Notice', 'Flash is only available for the rear camera.', 'info');
       setFlashOn(false);
       return;
     }
@@ -222,6 +250,15 @@ const CameraScreen = () => {
           <Icon name="flip-camera-android" size={30} color="#fff" />
         </TouchableOpacity>
       </View>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText={'OK'}
+      />
     </View>
   );
 };

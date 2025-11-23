@@ -10,13 +10,13 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import authService from '../src/services/auth.service';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type RootStackParamList = {
   ForgotPassword: undefined;
@@ -35,6 +35,13 @@ const OTPScreen = () => {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const hiddenInputRef = useRef<TextInput>(null);
+
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('success');
+  const [resetToken, setResetToken] = useState<string | null>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -62,9 +69,26 @@ const OTPScreen = () => {
     hiddenInputRef.current?.focus();
   };
 
-  /**
-   * 🔄 RESEND OTP - GỌI BACKEND
-   */
+  const showDialog = (title: string, message: string, type: 'success' | 'error', token?: string) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    if (token) {
+      setResetToken(token);
+    }
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    
+    if (dialogType === 'success' && resetToken) {
+      navigation.navigate('ChangePassword', { 
+        resetToken: resetToken 
+      });
+    }
+  };
+
   const handleResend = async () => {
     if (timer === 0 && !resending) {
       setResending(true);
@@ -73,29 +97,26 @@ const OTPScreen = () => {
         const result = await authService.resendOtp(email);
 
         if (result.success) {
-          Alert.alert('Success', 'OTP has been resent to your email');
+          showDialog('Success', 'OTP has been resent to your email', 'success');
           setOtpValue('');
           setTimer(60);
           setTimeout(() => {
             hiddenInputRef.current?.focus();
           }, 100);
         } else {
-          Alert.alert('Error', result.message);
+          showDialog('Error', result.message, 'error');
         }
       } catch (error) {
-        Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+        showDialog('Error', 'Failed to resend OTP. Please try again.', 'error');
       } finally {
         setResending(false);
       }
     }
   };
 
-  /**
-   * ✅ CONFIRM OTP - GỌI BACKEND
-   */
   const handleConfirm = async () => {
     if (otpValue.length !== 6) {
-      Alert.alert('Error', 'Please enter all 6 digits');
+      showDialog('Error', 'Please enter all 6 digits', 'error');
       return;
     }
 
@@ -105,17 +126,12 @@ const OTPScreen = () => {
       const result = await authService.confirmOtp(otpValue);
 
       if (result.success && result.resetToken) {
-        Alert.alert('Success', 'OTP verified successfully!');
-        
-        // Navigate to Change Password screen with reset token
-        navigation.navigate('ChangePassword', { 
-          resetToken: result.resetToken 
-        });
+        showDialog('Success', 'OTP verified successfully!', 'success', result.resetToken);
       } else {
-        Alert.alert('Error', result.message || 'Invalid OTP');
+        showDialog('Error', result.message || 'Invalid OTP', 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+      showDialog('Error', 'Failed to verify OTP. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -229,6 +245,15 @@ const OTPScreen = () => {
           )}
         </View>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };

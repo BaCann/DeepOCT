@@ -9,13 +9,13 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import authService from '../src/services/auth.service';
+import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
 
 type RootStackParamList = {
   ChangePassword: { resetToken: string };
@@ -33,21 +33,42 @@ const ChangePasswordScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
+
+  const showDialog = (title: string, message: string, type: 'success' | 'error' | 'info') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    // Nếu là thông báo thành công, chuyển sang màn Login
+    if (dialogType === 'success') {
+      navigation.navigate('Login');
+    }
+  };
+
 
   const handleChangePassword = async () => {
     // Validation
     if (!newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showDialog('Error', 'Please fill in all fields', 'error');
       return;
     }
 
     if (newPassword.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      showDialog('Error', 'Password must be at least 6 characters', 'error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      showDialog('Error', 'Passwords do not match', 'error');
       return;
     }
 
@@ -57,21 +78,16 @@ const ChangePasswordScreen = () => {
       const result = await authService.changePassword(resetToken, newPassword);
 
       if (result.success) {
-        Alert.alert(
+        showDialog(
           'Success',
           'Password changed successfully! Please login with your new password.',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.navigate('Login'),
-            },
-          ]
+          'success'
         );
       } else {
-        Alert.alert('Error', result.message);
+        showDialog('Error', result.message, 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to change password. Please try again.');
+      showDialog('Error', 'Failed to change password. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -177,6 +193,15 @@ const ChangePasswordScreen = () => {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };

@@ -9,13 +9,13 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
+import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -27,9 +27,31 @@ const EditProfileScreen = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
 
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('success');
+  
   useEffect(() => {
     loadProfile();
   }, []);
+
+  const showDialog = (title: string, message: string, type: 'success' | 'error') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    
+    // Nếu là thông báo thành công, quay lại màn hình trước
+    if (dialogType === 'success') {
+      navigation.goBack();
+    }
+  };
 
   const loadProfile = async () => {
     const profile = await userService.getCachedProfile();
@@ -41,9 +63,35 @@ const EditProfileScreen = () => {
     setLoading(false);
   };
 
-  const handleSave = async () => {
+  // Hàm xác thực
+  const validateInput = () => {
+    const nameRegex = /^[a-zA-Z\s]+$/; // Chỉ chấp nhận chữ cái và khoảng trắng
+    const mobileRegex = /^[0-9]+$/; // Chỉ chấp nhận số
+    // Định dạng ngày tháng: DD/MM/YYYY (hoặc YYYY-MM-DD nếu cần, tôi giả định DD/MM/YYYY hoặc YYYY-MM-DD là hợp lệ)
+    // Regex dưới đây kiểm tra định dạng XX/XX/XXXX hoặc XXXX-XX-XX
+    const dateRegex = /^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$/; 
+
     if (!fullName.trim()) {
-      Alert.alert('Error', 'Full name is required');
+      showDialog('Error', 'Full name is required', 'error');
+      return false;
+    }
+    if (!nameRegex.test(fullName.trim())) {
+      showDialog('Error', 'Full name must contain only letters and spaces', 'error');
+      return false;
+    }
+    if (mobileNumber && !mobileRegex.test(mobileNumber)) {
+      showDialog('Error', 'Mobile number must contain only digits', 'error');
+      return false;
+    }
+    if (dateOfBirth && !dateRegex.test(dateOfBirth)) {
+        showDialog('Error', 'Date of Birth must be in a valid format (e.g., DD/MM/YYYY or YYYY-MM-DD)', 'error');
+        return false;
+    }
+    return true;
+  };
+
+  const handleSave = async () => {
+    if (!validateInput()) {
       return;
     }
 
@@ -57,17 +105,16 @@ const EditProfileScreen = () => {
       });
 
       if (result.success) {
-        Alert.alert('Success', 'Profile updated successfully!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack(),
-          },
-        ]);
+        // Thay Alert thành showDialog (Success)
+        showDialog('Success', 'Profile updated successfully!', 'success');
+        // Việc quay lại màn hình trước được xử lý trong handleDialogConfirm
       } else {
-        Alert.alert('Error', result.message);
+        // Thay Alert thành showDialog (API Error)
+        showDialog('Error', result.message, 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+      // Thay Alert thành showDialog (Connection Error)
+      showDialog('Error', 'Failed to update profile. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -115,6 +162,7 @@ const EditProfileScreen = () => {
             value={fullName}
             onChangeText={setFullName}
             editable={!saving}
+            autoCapitalize="words" // Thêm gợi ý autoCapitalize
           />
         </View>
 
@@ -129,6 +177,7 @@ const EditProfileScreen = () => {
             onChangeText={setMobileNumber}
             keyboardType="phone-pad"
             editable={!saving}
+            maxLength={15}
           />
         </View>
 
@@ -137,7 +186,7 @@ const EditProfileScreen = () => {
           <Text style={styles.label}>Date of Birth</Text>
           <TextInput
             style={styles.input}
-            placeholder="YYYY-MM-DD"
+            placeholder="YYYY-MM-DD or DD/MM/YYYY"
             placeholderTextColor="#B5C9FF"
             value={dateOfBirth}
             onChangeText={setDateOfBirth}
@@ -158,6 +207,17 @@ const EditProfileScreen = () => {
           )}
         </TouchableOpacity>
       </ScrollView>
+      
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+        // Không truyền showCancelButton, onCancel, confirmButtonColor 
+        // để dialog chỉ có một nút OK màu mặc định.
+      />
     </SafeAreaView>
   );
 };

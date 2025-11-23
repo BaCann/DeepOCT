@@ -3,24 +3,27 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
+  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  TouchableOpacity,
   Switch,
   ScrollView,
   Image,
-  Alert,
+  Alert, 
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
 import settingsService, { Language } from '../src/services/settings.service';
 import { UserProfile } from '../src/types/user.types';
+import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
 
 type SettingScreenNavigationProp = NativeStackNavigationProp<MainStackParamList>;
+type DialogMode = 'info' | 'logoutConfirm' | 'deleteConfirm'; 
+
 
 const SettingScreen = () => {
   const navigation = useNavigation<SettingScreenNavigationProp>();
@@ -30,7 +33,39 @@ const SettingScreen = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
 
-  // Load settings và profile khi màn hình focus
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogMode, setDialogMode] = useState<DialogMode>('info');
+  const [dialogShowCancel, setDialogShowCancel] = useState(false);
+
+
+  const showDialog = (
+    title: string, 
+    message: string, 
+    mode: DialogMode, 
+    showCancel: boolean = false
+  ) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogMode(mode);
+    setDialogShowCancel(showCancel);
+    setDialogVisible(true);
+  };
+  
+  const handleDialogConfirm = async () => {
+    setDialogVisible(false);
+
+    if (dialogMode === 'logoutConfirm') {
+      await userService.logout();
+    } else if (dialogMode === 'deleteConfirm') {
+      navigation.navigate('DeleteAccount' as any);
+    }
+  };
+
+
+
   useFocusEffect(
     React.useCallback(() => {
       loadSettings();
@@ -57,11 +92,15 @@ const SettingScreen = () => {
   const handleDarkModeToggle = async (value: boolean) => {
     setDarkMode(value);
     await settingsService.setDarkMode(value);
-    // TODO: Áp dụng dark mode cho toàn app
-    Alert.alert('Info', 'Dark mode will be applied in next update');
+    
+    showDialog('Info', 'Dark mode will be applied in next update', 'info');
   };
 
   const handleLanguageChange = () => {
+    showDialog('Info', 'Language settings will be available in the next update.', 'info');
+    
+    // Nếu muốn hiển thị ngôn ngữ đã chọn (như trước), bạn có thể dùng logic cũ:
+    /*
     Alert.alert(
       'Select Language',
       'Choose your preferred language',
@@ -71,6 +110,7 @@ const SettingScreen = () => {
           onPress: async () => {
             setLanguage('en');
             await settingsService.setLanguage('en');
+            showDialog('Success', 'Language set to English.', 'info');
           },
         },
         {
@@ -78,11 +118,13 @@ const SettingScreen = () => {
           onPress: async () => {
             setLanguage('vi');
             await settingsService.setLanguage('vi');
+            showDialog('Success', 'Ngôn ngữ đã được đặt là Tiếng Việt.', 'info');
           },
         },
         { text: 'Cancel', style: 'cancel' },
       ]
     );
+    */
   };
 
   const handleChangePassword = () => {
@@ -90,42 +132,20 @@ const SettingScreen = () => {
   };
 
 const handleLogout = () => {
-  Alert.alert(
+  showDialog(
     'Logout',
     'Are you sure you want to logout?',
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          await userService.logout();
-        },
-      },
-    ]
+    'logoutConfirm',
+    true
   );
 };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    showDialog(
       'Delete Account',
       'This action cannot be undone. All your data will be permanently deleted.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            navigation.navigate('DeleteAccount' as any);
-          },
-        },
-      ]
+      'deleteConfirm',
+      true
     );
   };
 
@@ -149,7 +169,7 @@ const handleLogout = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.fixedContent}>
         {/* Header */}
         <Text style={styles.title}>Settings</Text>
 
@@ -173,6 +193,10 @@ const handleLogout = () => {
             </TouchableOpacity>
           </View>
         )}
+      </View>
+      
+      {/* Scrollable Content */}
+      <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
 
         {/* Account Section */}
         <View style={styles.section}>
@@ -188,7 +212,7 @@ const handleLogout = () => {
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.item} onPress={handleDeleteAccount}>
+          <TouchableOpacity style={[styles.item, styles.lastItem]} onPress={handleDeleteAccount}>
             <Text style={[styles.itemText, styles.dangerText]}>Delete Account</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
@@ -208,7 +232,7 @@ const handleLogout = () => {
             />
           </View>
 
-          <TouchableOpacity style={styles.item} onPress={handleLanguageChange}>
+          <TouchableOpacity style={[styles.item, styles.lastItem]} onPress={handleLanguageChange}>
             <Text style={styles.itemText}>Language</Text>
             <View style={styles.languageValue}>
               <Text style={styles.valueText}>
@@ -223,7 +247,7 @@ const handleLogout = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Privacy</Text>
 
-          <TouchableOpacity style={styles.item} onPress={handlePermissions}>
+          <TouchableOpacity style={[styles.item, styles.lastItem]} onPress={handlePermissions}>
             <Text style={styles.itemText}>Permissions</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
@@ -233,15 +257,33 @@ const handleLogout = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
 
-          <TouchableOpacity style={styles.item} onPress={handleAbout}>
+          <TouchableOpacity style={[styles.item, styles.lastItem]} onPress={handleAbout}>
             <Text style={styles.itemText}>About DeepOCT</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
         </View>
 
         {/* Version */}
-        <Text style={styles.version}>Version 1.0.0</Text>
+        <Text style={styles.version}></Text>
       </ScrollView>
+      
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        onCancel={() => setDialogVisible(false)}
+        showCancelButton={dialogShowCancel}
+        confirmText={
+          dialogMode === 'logoutConfirm' ? 'Logout' : 
+          dialogMode === 'deleteConfirm' ? 'Delete' : 'OK'
+        }
+        confirmButtonColor={
+          dialogMode === 'deleteConfirm' || dialogMode === 'logoutConfirm' ? '#EF4444' : '#2260FF'
+        }
+        cancelText='Cancel'
+      />
     </SafeAreaView>
   );
 };
@@ -251,7 +293,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  container: {
+  fixedContent: {
+    paddingHorizontal: 20,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContainer: {
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
@@ -264,7 +312,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
     color: '#2260FF',
@@ -368,6 +416,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
   },
+  lastItem: {
+    borderBottomWidth: 0,
+  },
   itemText: {
     fontSize: 16,
     fontFamily: Platform.select({
@@ -382,7 +433,7 @@ const styles = StyleSheet.create({
   },
   arrow: {
     fontSize: 24,
-    color: '#CBD5E1',
+    color: '#2260FF',
   },
   languageValue: {
     flexDirection: 'row',

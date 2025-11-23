@@ -10,7 +10,6 @@ import {
   Platform,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
@@ -18,6 +17,7 @@ import { CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList, RootStackParamList } from '../App';
 import authService from '../src/services/auth.service';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type LoginNavigationProp = CompositeNavigationProp<
   StackNavigationProp<AuthStackParamList, 'Login'>,
@@ -31,9 +31,33 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  /**
-   * 🔐 HANDLE LOGIN - GỌI SERVICE
-   */
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('success');
+
+  const showDialog = (title: string, message: string, type: 'success' | 'error') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    
+    // Nếu là thông báo thành công, chuyển sang màn Main
+    if (dialogType === 'success') {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        })
+      );
+    }
+  };
+
   const handleLogin = async () => {
     setLoading(true);
 
@@ -44,20 +68,12 @@ const LoginScreen = () => {
       });
 
       if (result.success) {
-        Alert.alert('Success', result.message);
-        
-        // Navigate to Main screen
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'Main' }],
-          })
-        );
+        showDialog('Success', result.message, 'success');
       } else {
-        Alert.alert('Login Failed', result.message);
+        showDialog('Login Failed', result.message, 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred');
+      showDialog('Error', 'An unexpected error occurred', 'error');
     } finally {
       setLoading(false);
     }
@@ -73,7 +89,6 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Row: Back + Title + Placeholder */}
       <View style={styles.headerRow}>
         <TouchableOpacity 
           style={styles.backButton} 
@@ -181,6 +196,15 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };

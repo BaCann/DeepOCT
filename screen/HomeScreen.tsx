@@ -1,4 +1,3 @@
-// src/screens/HomeScreen.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -8,7 +7,6 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Alert,
   BackHandler,
   ToastAndroid,
   ScrollView,
@@ -19,40 +17,62 @@ import userService from '../src/services/user.service';
 import predictionService from '../src/services/prediction.service';
 import { UserProfile } from '../src/types/user.types';
 import { PredictionResult, DISEASE_COLORS } from '../src/types/prediction.types';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
 
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
-  const route = useRoute<any>();  
+  const route = useRoute<any>();  
   const backPressRef = useRef(0);
-
+  
   // States
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [diagnosing, setDiagnosing] = useState(false);
   const [lastPrediction, setLastPrediction] = useState<PredictionResult | null>(null);
 
-  // Nhận image từ navigation params
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState<'success' | 'error'>('error');
+  
+  const handleViewDetail = (predictionId: string) => {
+    navigation.navigate('PredictionDetail', { predictionId: predictionId });
+  };
+  
+  const showDialog = (title: string, message: string, type: 'success' | 'error') => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogType(type);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+  };
+
+
   useEffect(() => {
     if (route.params?.selectedImage) {
       console.log('Received image from params:', route.params.selectedImage);
       setSelectedImage(route.params.selectedImage);
       setLastPrediction(null);
       
-      // Clear params
       navigation.setParams({ selectedImage: undefined });
     }
   }, [route.params?.selectedImage]);
 
-  // Load profile
   useFocusEffect(
     React.useCallback(() => {
       loadProfile();
     }, [])
   );
 
-  // Double back to exit
   useFocusEffect(
     React.useCallback(() => {
+      if (Platform.OS !== 'android') return;
+
       const onBackPress = () => {
         const now = Date.now();
         if (backPressRef.current && now - backPressRef.current < 2000) {
@@ -60,7 +80,7 @@ const HomeScreen = () => {
           return true;
         } else {
           backPressRef.current = now;
-          ToastAndroid.show('Press again to close', ToastAndroid.SHORT);
+          ToastAndroid.show('Press again to close', ToastAndroid.SHORT); 
           return true;
         }
       };
@@ -79,7 +99,7 @@ const HomeScreen = () => {
 
   const handleDiagnose = async () => {
     if (!selectedImage) {
-      Alert.alert('Error', 'Please select an image first');
+      showDialog('Error', 'Please select an image first', 'error');
       return;
     }
 
@@ -91,9 +111,9 @@ const HomeScreen = () => {
 
     if (result.success && result.data) {
       setLastPrediction(result.data);
-      Alert.alert('Success', 'Diagnosis completed!');
+      showDialog('Success', 'Diagnosis completed!', 'success');
     } else {
-      Alert.alert('Error', result.message);
+      showDialog('Error', result.message, 'error');
     }
   };
 
@@ -106,7 +126,8 @@ const HomeScreen = () => {
   };
 
   const getDiseaseColor = (disease: string) => {
-    return DISEASE_COLORS[disease as keyof typeof DISEASE_COLORS] || '#9E9E9E';
+    // Đảm bảo kiểu dữ liệu an toàn cho key access
+    return DISEASE_COLORS[disease as keyof typeof DISEASE_COLORS] || '#9E9E9E'; 
   };
 
   return (
@@ -151,12 +172,18 @@ const HomeScreen = () => {
               resizeMode="cover"
               onError={(e) => {
                 console.error('❌ Image load error:', e.nativeEvent.error);
-                Alert.alert('Error', 'Failed to load image');
+                // Thay Alert thành showDialog
+                showDialog('Error', 'Failed to load image', 'error');
               }}
             />
           ) : (
             <View style={styles.placeholder}>
-              <Text style={styles.placeholderIcon}>📷</Text>
+              <FontAwesome
+            name="camera"
+            size={40}
+            color="#888"
+            style={styles.placeholderIcon}
+            />
               <Text style={styles.placeholderText}>No image selected</Text>
               <Text style={styles.placeholderHint}>
                 Tap the camera button below
@@ -189,11 +216,7 @@ const HomeScreen = () => {
             <View style={styles.resultHeader}>
               <Text style={styles.resultTitle}>Diagnosis Result</Text>
               <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('PredictionResult', {
-                    prediction: lastPrediction,
-                  })
-                }
+                onPress={() => handleViewDetail(lastPrediction.id)} 
               >
                 <Text style={styles.viewDetailLink}>View Details →</Text>
               </TouchableOpacity>
@@ -240,17 +263,28 @@ const HomeScreen = () => {
           </View>
         )}
 
-        {/* Info Card */}
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>💡 How to use</Text>
-          <Text style={styles.infoText}>
-            1. Tap the camera button below to capture or select an image{'\n'}
-            2. Wait for the image to appear on this screen{'\n'}
-            3. Tap "Diagnose" to analyze the image{'\n'}
-            4. View your diagnosis result
-          </Text>
-        </View>
+        {!lastPrediction && (
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>How to use</Text>
+            <Text style={styles.infoText}>
+                1. Tap the camera button below to capture or select an image{'\n'}
+                2. Wait for the image to appear on this screen{'\n'}
+                3. Tap "Diagnose" to analyze the image{'\n'}
+                4. View your diagnosis result
+            </Text>
+          </View>
+        )}
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+        // Lỗi và thành công đều chỉ có 1 nút OK
+      />
     </SafeAreaView>
   );
 };
@@ -259,6 +293,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    paddingTop: 20,
   },
   scrollView: {
     flexGrow: 1,
@@ -538,6 +573,7 @@ const styles = StyleSheet.create({
       ios: 'LeagueSpartan-Light',
       android: 'LeagueSpartan-Light',
       default: 'System',
+      
     }),
     color: '#000000',
     lineHeight: 22,

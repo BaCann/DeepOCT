@@ -217,6 +217,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? 40 : 0,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,

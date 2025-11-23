@@ -89,7 +89,10 @@ const AboutScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Development Team</Text>
           <Text style={styles.teamText}>
-            Developed by medical technology experts and AI researchers committed to improving eye care through innovation.
+            Duong Ba Can - 22520143{"\n"} 
+            Nguyen Vo Dai Duong - 22520308{"\n"}
+            Faculty of Computer Networks and Communications,{"\n"}
+            University of Information Technology - VNU-HCM
           </Text>
         </View>
 
