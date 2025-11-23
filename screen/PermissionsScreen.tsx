@@ -127,7 +127,7 @@ const PermissionsScreen = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case RESULTS.GRANTED:
-        return '#10B981';
+        return '#22C55E';
       case RESULTS.DENIED:
       case RESULTS.BLOCKED:
         return '#EF4444';
