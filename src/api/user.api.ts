@@ -31,6 +31,26 @@ class UserApi {
       data: data,
     });
   }
+
+async uploadAvatar(imageUri: string): Promise<UserProfile> {
+    const formData = new FormData();
+    
+    formData.append('avatar', {
+      uri: imageUri,
+      type: 'image/jpeg',
+      name: `avatar_${Date.now()}.jpg`,
+    } as any);
+
+    return apiClient.put<UserProfile>(
+      API_CONFIG.ENDPOINTS.UPLOAD_AVATAR, 
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+  }
 }
 
 export default new UserApi();

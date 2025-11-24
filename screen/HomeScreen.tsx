@@ -71,6 +71,20 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
+      const validateLastPrediction = async () => {
+        if (lastPrediction) {
+          const result = await predictionService.getDetail(lastPrediction.id);
+          if (!result.success) {
+            setLastPrediction(null);
+          }
+        }
+      };
+      validateLastPrediction();
+    }, [lastPrediction])
+  );
+  
+  useFocusEffect(
+    React.useCallback(() => {
       if (Platform.OS !== 'android') return;
 
       const onBackPress = () => {
@@ -133,21 +147,37 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.profileBadge} onPress={handleViewProfile}>
-          <View style={styles.avatarSmall}>
-            <Text style={styles.avatarText}>
-              {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
-            </Text>
+      <View style={styles.headerWrapper}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity style={styles.profileSection} onPress={handleViewProfile}>
+              {/* THAY ĐỔI - Hiển thị avatar hoặc chữ cái */}
+              {profile?.avatar_url ? (
+                <Image 
+                  source={{ uri: profile.avatar_url }} 
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <View style={styles.avatarContainer}>
+                  <Text style={styles.avatarText}>
+                    {profile?.full_name?.charAt(0).toUpperCase() || 'U'}
+                  </Text>
+                </View>
+              )}
+              
+              <View style={styles.profileInfo}>
+                <Text style={styles.greetingText}>Welcome back,</Text>
+                <Text style={styles.profileName} numberOfLines={1}>
+                  {profile?.full_name || 'User'}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.profileName} numberOfLines={1}>
-            {profile?.full_name || 'User'}
-          </Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.historyButton} onPress={handleViewHistory}>
-          <Text style={styles.historyText}>History</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.historyButton} onPress={handleViewHistory}>
+            <FontAwesome name="history" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView 
@@ -293,70 +323,110 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingTop: 20,
+    paddingTop: 0,
   },
   scrollView: {
     flexGrow: 1,
     paddingHorizontal: 30,
+    paddingTop: 20,
     paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 30,
+    paddingHorizontal: 24,
     paddingTop: 16,
-    paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 0,
+    paddingBottom: 20,
+    backgroundColor: 'transparent',  // ĐỔI từ '#FFFFFF' thành 'transparent'
+    borderBottomWidth: 0,  // ĐỔI từ 1 thành 0
   },
-  profileBadge: {
+  headerLeft: {
+    flex: 1,
+    marginRight: 16,
+  },
+  profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
-  avatarSmall: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#2260FF',
-    justifyContent: 'center',
-    alignItems: 'center',
+  avatarContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: '#FFFFFF',
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+  avatarImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E5E7EB',
   },
   avatarText: {
-    fontSize: 18,
+    fontSize: 20,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
+      default: 'System',
+    }),
+    color: '#2260FF',
+  },
+  profileInfo: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  greetingText: {
+    fontSize: 12,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Light',
+      android: 'LeagueSpartan-Light',
+      default: 'System',
+    }),
+    color: '#E0E7FF',  // ĐỔI từ '#6B7280' thành màu xanh nhạt
+    marginBottom: 2,
+  },
+  profileName: {
+    fontSize: 16,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
       default: 'System',
     }),
-    color: '#FFFFFF',
-  },
-  profileName: {
-    marginLeft: 12,
-    fontSize: 18,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
-    color: '#2260FF',
-    flex: 1,
+    color: '#FFFFFF',  // ĐỔI từ '#1F2937' thành '#FFFFFF'
   },
   historyButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#ECF1FF',
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',  // ĐỔI từ '#ECF1FF' thành transparent white
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  historyText: {
-    fontSize: 16,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
-    color: '#2260FF',
+  // historyText: {
+  //   fontSize: 16,
+  //   fontFamily: Platform.select({
+  //     ios: 'LeagueSpartan-Medium',
+  //     android: 'LeagueSpartan-Medium',
+  //     default: 'System',
+  //   }),
+  //   color: '#2260FF',
+  // },
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,  // Tự động điều chỉnh theo iOS/Android
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
   },
   titleSection: {
     alignItems: 'flex-start',

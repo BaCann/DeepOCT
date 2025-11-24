@@ -25,20 +25,18 @@ const AboutScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/Vector_back.png')}
-            style={styles.backIcon}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
+      {/* Header với background xanh */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../assets/Vector_back.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>About</Text>
         </View>
-
-        <View style={styles.placeholder} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -88,42 +86,53 @@ const AboutScreen = () => {
         {/* Team */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Development Team</Text>
-          <Text style={styles.teamText}>
-            Duong Ba Can - 22520143{"\n"} 
-            Nguyen Vo Dai Duong - 22520308{"\n"}
-            Faculty of Computer Networks and Communications,{"\n"}
-            University of Information Technology - VNU-HCM
-          </Text>
+          
+          <View style={styles.teamContainer}>
+            {/* 2 Logo cạnh nhau */}
+            <View style={styles.logoRow}>
+              <Image
+                source={require('../assets/logo_truong.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <Image
+                source={require('../assets/logo_khoa.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            
+            {/* Tên Trường */}
+            <Text style={styles.universityText}>
+              University of Information Technology - UIT
+            </Text>
+            
+            {/* Tên Khoa */}
+            <Text style={styles.facultyText}>
+              Faculty of Computer Networks and Communications
+            </Text>
+            
+            {/* Đường kẻ phân cách */}
+            <View style={styles.divider} />
+            
+            {/* Thành viên */}
+            <Text style={styles.teamMember}>Duong Ba Can - 22520143</Text>
+            <Text style={styles.teamMember}>Nguyen Vo Dai Duong - 22520308</Text>
+          </View>
         </View>
 
-        {/* Links */}
+        {/* Contact */}
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Contact</Text>
           <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => handleLinkPress('https://website.com')}
-          >
-            <Text style={styles.linkText}>🌐 Visit Our Website</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => handleLinkPress('https://website.com/privacy')}
-          >
-            <Text style={styles.linkText}>🔒 Privacy Policy</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => handleLinkPress('https://website.com/terms')}
-          >
-            <Text style={styles.linkText}>📄 Terms of Service</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
+            style={styles.contactButton}
             onPress={() => handleLinkPress('mailto:noreply.deepoct@gmail.com')}
           >
-            <Text style={styles.linkText}>📧 Contact Support</Text>
+            <Text style={styles.contactIcon}>📧</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.contactLabel}>Email Support</Text>
+              <Text style={styles.contactText}>noreply.deepoct@gmail.com</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -139,40 +148,47 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  scrollView: {
-    padding: 20,
-    paddingBottom: 40,
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
   },
-  headerRow: {
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 40,
-    marginBottom: 10,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   backButton: {
-    padding: 20,
-    transform: [{ translateX: 10 }],
+    padding: 8,
+    marginRight: 12,
   },
   backIcon: {
     width: 16,
     height: 16,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  placeholder: {
-    width: 44,
+    tintColor: '#FFFFFF',
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
       default: 'System',
     }),
-    color: '#2260FF',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 36,
+  },
+  scrollView: {
+    padding: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   logoContainer: {
     alignItems: 'center',
@@ -180,8 +196,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 50,
+    height: 50,
   },
   appName: {
     fontSize: 32,
@@ -266,14 +282,61 @@ const styles = StyleSheet.create({
     }),
     color: '#64748B',
   },
-  teamText: {
+  teamContainer: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  teamMember: {
     fontSize: 14,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Regular',
-      android: 'LeagueSpartan-Regular',
+      ios: 'LeagueSpartan-SemiBold',
+      android: 'LeagueSpartan-SemiBold',
+      default: 'System',
+    }),
+    color: '#1E293B',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  facultyLogo: {
+    width: 80,
+    height: 80,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  facultyText: {
+    fontSize: 13,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
     color: '#64748B',
+    textAlign: 'center',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  divider: {
+    width: '80%',
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 12,
+  },
+  universityLogo: {
+    width: 100,
+    height: 100,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  universityText: {
+    fontSize: 15,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
+      default: 'System',
+    }),
+    color: '#2260FF',
+    textAlign: 'center',
+    marginBottom: 8,
     lineHeight: 22,
   },
   linkButton: {
@@ -300,6 +363,41 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     textAlign: 'center',
     marginTop: 24,
+  },
+  contactButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  contactIcon: {
+    fontSize: 28,
+    marginRight: 16,
+  },
+  contactLabel: {
+    fontSize: 12,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Regular',
+      android: 'LeagueSpartan-Regular',
+      default: 'System',
+    }),
+    color: '#94A3B8',
+    marginBottom: 2,
+  },
+  contactText: {
+    fontSize: 14,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
+      default: 'System',
+    }),
+    color: '#2260FF',
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    gap: 20,  // Khoảng cách giữa 2 logo
   },
 });
 

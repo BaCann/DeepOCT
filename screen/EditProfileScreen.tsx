@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
-import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
+import CustomDialog from '../components/dialog/CustomDialog';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -67,8 +67,6 @@ const EditProfileScreen = () => {
   const validateInput = () => {
     const nameRegex = /^[a-zA-Z\s]+$/; // Chỉ chấp nhận chữ cái và khoảng trắng
     const mobileRegex = /^[0-9]+$/; // Chỉ chấp nhận số
-    // Định dạng ngày tháng: DD/MM/YYYY (hoặc YYYY-MM-DD nếu cần, tôi giả định DD/MM/YYYY hoặc YYYY-MM-DD là hợp lệ)
-    // Regex dưới đây kiểm tra định dạng XX/XX/XXXX hoặc XXXX-XX-XX
     const dateRegex = /^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$/; 
 
     if (!fullName.trim()) {
@@ -105,15 +103,11 @@ const EditProfileScreen = () => {
       });
 
       if (result.success) {
-        // Thay Alert thành showDialog (Success)
         showDialog('Success', 'Profile updated successfully!', 'success');
-        // Việc quay lại màn hình trước được xử lý trong handleDialogConfirm
       } else {
-        // Thay Alert thành showDialog (API Error)
         showDialog('Error', result.message, 'error');
       }
     } catch (error) {
-      // Thay Alert thành showDialog (Connection Error)
       showDialog('Error', 'Failed to update profile. Please try again.', 'error');
     } finally {
       setSaving(false);
@@ -132,20 +126,18 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/Vector_back.png')}
-            style={styles.backIcon}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
+      {/* Header với background xanh */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../assets/Vector_back.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Profile</Text>
         </View>
-
-        <View style={styles.placeholder} />
       </View>
 
       <ScrollView
@@ -162,7 +154,7 @@ const EditProfileScreen = () => {
             value={fullName}
             onChangeText={setFullName}
             editable={!saving}
-            autoCapitalize="words" // Thêm gợi ý autoCapitalize
+            autoCapitalize="words"
           />
         </View>
 
@@ -215,8 +207,6 @@ const EditProfileScreen = () => {
         message={dialogMessage}
         onConfirm={handleDialogConfirm}
         confirmText="OK"
-        // Không truyền showCancelButton, onCancel, confirmButtonColor 
-        // để dialog chỉ có một nút OK màu mặc định.
       />
     </SafeAreaView>
   );
@@ -225,48 +215,54 @@ const EditProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scrollView: {
-    flexGrow: 1,
-    paddingHorizontal: 30,
-    paddingTop: 40,
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
   },
-  headerRow: {
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 40,
-    marginBottom: 10,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   backButton: {
-    padding: 20,
-    transform: [{ translateX: 10 }],
+    padding: 8,
+    marginRight: 12,
   },
   backIcon: {
     width: 16,
     height: 16,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  placeholder: {
-    width: 44,
+    tintColor: '#FFFFFF',
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
       default: 'System',
     }),
-    color: '#2260FF',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 36,
+  },
+  scrollView: {
+    flexGrow: 1,
+    paddingHorizontal: 30,
+    paddingTop: 40,
   },
   inputContainer: {
     marginBottom: 20,
@@ -303,6 +299,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     marginTop: 30,
+    shadowColor: '#2260FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   saveButtonDisabled: {
     opacity: 0.6,

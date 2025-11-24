@@ -9,7 +9,7 @@ import {
   Switch,
   ScrollView,
   Image,
-  Alert, 
+  Alert,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -17,21 +17,19 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
-import settingsService, { Language } from '../src/services/settings.service';
 import { UserProfile } from '../src/types/user.types';
-import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
+import CustomDialog from '../components/dialog/CustomDialog';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';  
 
 type SettingScreenNavigationProp = NativeStackNavigationProp<MainStackParamList>;
-type DialogMode = 'info' | 'logoutConfirm' | 'deleteConfirm'; 
-
+type DialogMode = 'info' | 'logoutConfirm' | 'deleteConfirm';
 
 const SettingScreen = () => {
   const navigation = useNavigation<SettingScreenNavigationProp>();
-  
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState<Language>('en');
 
   // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -39,12 +37,13 @@ const SettingScreen = () => {
   const [dialogMessage, setDialogMessage] = useState('');
   const [dialogMode, setDialogMode] = useState<DialogMode>('info');
   const [dialogShowCancel, setDialogShowCancel] = useState(false);
-
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const showDialog = (
-    title: string, 
-    message: string, 
-    mode: DialogMode, 
+    title: string,
+    message: string,
+    mode: DialogMode,
     showCancel: boolean = false
   ) => {
     setDialogTitle(title);
@@ -53,7 +52,7 @@ const SettingScreen = () => {
     setDialogShowCancel(showCancel);
     setDialogVisible(true);
   };
-  
+
   const handleDialogConfirm = async () => {
     setDialogVisible(false);
 
@@ -64,81 +63,124 @@ const SettingScreen = () => {
     }
   };
 
-
-
   useFocusEffect(
     React.useCallback(() => {
-      loadSettings();
       loadProfile();
     }, [])
   );
-
-  const loadSettings = async () => {
-    const savedDarkMode = await settingsService.getDarkMode();
-    const savedLanguage = await settingsService.getLanguage();
-    setDarkMode(savedDarkMode);
-    setLanguage(savedLanguage);
-  };
 
   const loadProfile = async () => {
     setLoading(true);
     const result = await userService.getProfile();
     if (result.success && result.data) {
       setProfile(result.data);
+      
+      // Set avatar URI từ server nếu có
+      if (result.data.avatar_url) {
+        setAvatarUri(result.data.avatar_url);
+      }
     }
     setLoading(false);
-  };
-
-  const handleDarkModeToggle = async (value: boolean) => {
-    setDarkMode(value);
-    await settingsService.setDarkMode(value);
-    
-    showDialog('Info', 'Dark mode will be applied in next update', 'info');
-  };
-
-  const handleLanguageChange = () => {
-    showDialog('Info', 'Language settings will be available in the next update.', 'info');
-    
-    // Nếu muốn hiển thị ngôn ngữ đã chọn (như trước), bạn có thể dùng logic cũ:
-    /*
-    Alert.alert(
-      'Select Language',
-      'Choose your preferred language',
-      [
-        {
-          text: 'English',
-          onPress: async () => {
-            setLanguage('en');
-            await settingsService.setLanguage('en');
-            showDialog('Success', 'Language set to English.', 'info');
-          },
-        },
-        {
-          text: 'Tiếng Việt',
-          onPress: async () => {
-            setLanguage('vi');
-            await settingsService.setLanguage('vi');
-            showDialog('Success', 'Ngôn ngữ đã được đặt là Tiếng Việt.', 'info');
-          },
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
-    */
   };
 
   const handleChangePassword = () => {
     navigation.navigate('ChangePasswordInApp' as any);
   };
 
-const handleLogout = () => {
-  showDialog(
-    'Logout',
-    'Are you sure you want to logout?',
-    'logoutConfirm',
-    true
-  );
-};
+  const handleAvatarPress = () => {
+    Alert.alert(
+      'Change Profile Photo',
+      'Choose an option',
+      [
+        {
+          text: 'Take Photo',
+          onPress: handleTakePhoto,
+        },
+        {
+          text: 'Choose from Library',
+          onPress: handleChooseFromLibrary,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const result = await launchCamera({
+        mediaType: 'photo',
+        quality: 0.8,
+        maxWidth: 800,
+        maxHeight: 800,
+        includeBase64: false,
+        cameraType: 'front',
+      });
+
+      if (result.assets && result.assets[0].uri) {
+        await uploadAvatar(result.assets[0].uri);
+      }
+    } catch (error) {
+      showDialog('Error', 'Failed to take photo', 'info', false);
+    }
+  };
+
+  const handleChooseFromLibrary = async () => {
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+        maxWidth: 800,
+        maxHeight: 800,
+        includeBase64: false,
+        selectionLimit: 1,
+      });
+
+      if (result.assets && result.assets[0].uri) {
+        await uploadAvatar(result.assets[0].uri);
+      }
+    } catch (error) {
+      showDialog('Error', 'Failed to select photo', 'info', false);
+    }
+  };
+
+  const uploadAvatar = async (uri: string) => {
+    setUploadingAvatar(true);
+    
+    try {
+      // Gọi API upload avatar
+      const result = await userService.uploadAvatar(uri);
+      
+      if (result.success && result.data) {
+        // Cập nhật profile với data mới từ server
+        setProfile(result.data);
+        
+        // Set avatar URI để hiển thị
+        setAvatarUri(result.data.avatar_url || uri);
+        
+        showDialog('Success', 'Profile photo updated successfully', 'info', false);
+      } else {
+        showDialog('Error', result.message, 'info', false);
+      }
+    } catch (error) {
+      console.error('Upload avatar error:', error);
+      showDialog('Error', 'Failed to upload photo. Please try again.', 'info', false);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleLogout = () => {
+    showDialog(
+      'Logout',
+      'Are you sure you want to logout?',
+      'logoutConfirm',
+      true
+    );
+  };
 
   const handleDeleteAccount = () => {
     showDialog(
@@ -169,18 +211,46 @@ const handleLogout = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.fixedContent}>
-        {/* Header */}
-        <Text style={styles.title}>Settings</Text>
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>Settings</Text>
+        </View>
+      </View>
 
-        {/* Profile Section */}
+       {/* Profile Section - Di chuyển ra ngoài headerWrapper */}
+      <View style={styles.profileContainer}>
         {profile && (
           <View style={styles.profileSection}>
-            <View style={styles.avatarContainer}>
-              <Text style={styles.avatarText}>
-                {profile.full_name.charAt(0).toUpperCase()}
-              </Text>
-            </View>
+            {/* Avatar - Thêm TouchableOpacity và Camera Overlay */}
+            <TouchableOpacity 
+              style={styles.avatarWrapper}
+              onPress={handleAvatarPress}
+              activeOpacity={0.8}
+              disabled={uploadingAvatar}
+            >
+              {avatarUri || profile.avatar_url ? (
+                <Image 
+                  source={{ uri: avatarUri || profile.avatar_url }} 
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <View style={styles.avatarContainer}>
+                  <Text style={styles.avatarText}>
+                    {profile.full_name.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+              )}
+              
+              {/* Camera Overlay mờ */}
+              <View style={styles.cameraOverlay}>
+                {uploadingAvatar ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <FontAwesome name="camera" size={14} color="#FFFFFF" />
+                )}
+              </View>
+            </TouchableOpacity>
+
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>{profile.full_name}</Text>
               <Text style={styles.profileEmail}>{profile.email}</Text>
@@ -194,7 +264,7 @@ const handleLogout = () => {
           </View>
         )}
       </View>
-      
+
       {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
 
@@ -215,31 +285,6 @@ const handleLogout = () => {
           <TouchableOpacity style={[styles.item, styles.lastItem]} onPress={handleDeleteAccount}>
             <Text style={[styles.itemText, styles.dangerText]}>Delete Account</Text>
             <Text style={styles.arrow}>›</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Preferences Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
-
-          <View style={styles.item}>
-            <Text style={styles.itemText}>Dark Mode</Text>
-            <Switch
-              value={darkMode}
-              onValueChange={handleDarkModeToggle}
-              trackColor={{ false: '#D1D5DB', true: '#2260FF' }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
-
-          <TouchableOpacity style={[styles.item, styles.lastItem]} onPress={handleLanguageChange}>
-            <Text style={styles.itemText}>Language</Text>
-            <View style={styles.languageValue}>
-              <Text style={styles.valueText}>
-                {language === 'en' ? 'English' : 'Tiếng Việt'}
-              </Text>
-              <Text style={styles.arrow}>›</Text>
-            </View>
           </TouchableOpacity>
         </View>
 
@@ -266,8 +311,7 @@ const handleLogout = () => {
         {/* Version */}
         <Text style={styles.version}></Text>
       </ScrollView>
-      
-      {/* Custom Dialog */}
+
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
@@ -276,7 +320,7 @@ const handleLogout = () => {
         onCancel={() => setDialogVisible(false)}
         showCancelButton={dialogShowCancel}
         confirmText={
-          dialogMode === 'logoutConfirm' ? 'Logout' : 
+          dialogMode === 'logoutConfirm' ? 'Logout' :
           dialogMode === 'deleteConfirm' ? 'Delete' : 'OK'
         }
         confirmButtonColor={
@@ -292,9 +336,25 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#F8FAFC',
+    paddingTop: 0,
   },
-  fixedContent: {
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+    // borderBottomLeftRadius: 30,
+    // borderBottomRightRadius: 30,
+    // overflow: 'hidden',
+  },
+  headerContent: {
     paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    alignItems: 'center',  // Căn giữa
   },
   scrollView: {
     flex: 1,
@@ -309,15 +369,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Bold',  // ĐỔI từ Medium thành Bold
       default: 'System',
     }),
-    color: '#2260FF',
-    marginTop: 20,
-    marginBottom: 24,
+    color: '#FFFFFF',  // ĐỔI từ '#2260FF' thành '#FFFFFF'
+    textAlign: 'center',  // THÊM: căn giữa text
+  },
+  profileContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+    backgroundColor: '#F8FAFC',
   },
   profileSection: {
     flexDirection: 'row',
@@ -337,6 +402,29 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: '#2260FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarWrapper: {
+    position: 'relative',
+    width: 60,
+    height: 60,
+  },
+  avatarImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E5E7EB',
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -434,20 +522,6 @@ const styles = StyleSheet.create({
   arrow: {
     fontSize: 24,
     color: '#2260FF',
-  },
-  languageValue: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  valueText: {
-    fontSize: 16,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Regular',
-      android: 'LeagueSpartan-Regular',
-      default: 'System',
-    }),
-    color: '#64748B',
-    marginRight: 8,
   },
   version: {
     fontSize: 12,

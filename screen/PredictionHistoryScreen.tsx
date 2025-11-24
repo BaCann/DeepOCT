@@ -16,7 +16,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import predictionService from '../src/services/prediction.service';
 import { PredictionHistory, DISEASE_COLORS } from '../src/types/prediction.types';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import CustomDialog from '../components/dialog/CustomDialog'; // 👈 IMPORT CUSTOM DIALOG
+import CustomDialog from '../components/dialog/CustomDialog';
 
 // Định nghĩa các chế độ của dialog
 type DialogMode = 'error' | 'deleteSingleConfirm' | 'success'; 
@@ -134,7 +134,6 @@ const PredictionHistoryScreen = () => {
       setTotalItems(result.total);
       setTotalPages(Math.ceil(result.total / result.page_size));
     } else {
-      // Thay Alert thành CustomDialog
       showDialog('Error', result.message || 'Failed to load history', 'error');
     }
 
@@ -279,16 +278,21 @@ const PredictionHistoryScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-back" size={24} color="#2260FF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Prediction History</Text>
-        <View style={{ width: 40 }} />
+      {/* Header với background xanh */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Image
+              source={require('../assets/Vector_back.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Prediction History</Text>
+        </View>
       </View>
 
       {/* Stats */}
@@ -328,7 +332,7 @@ const PredictionHistoryScreen = () => {
         title={dialogTitle}
         message={dialogMessage}
         onConfirm={handleDialogConfirm}
-        onCancel={() => setDialogVisible(false)} // Hủy bỏ sẽ đóng dialog
+        onCancel={() => setDialogVisible(false)}
         showCancelButton={dialogShowCancel}
         confirmText={dialogMode === 'deleteSingleConfirm' ? 'Delete' : 'OK'}
         confirmButtonColor={dialogMode === 'deleteSingleConfirm' ? '#EF4444' : '#2260FF'}
@@ -341,40 +345,57 @@ const PredictionHistoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
   },
-  header: {
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 40 : 0,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ECF1FF',
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 8,
+    marginRight: 12,
+  },
+  backIcon: {
+    width: 16,
+    height: 16,
+    tintColor: '#FFFFFF',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
       default: 'System',
     }),
-    color: '#2260FF',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 36,
   },
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#ECF1FF',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
     marginVertical: 16,
     borderRadius: 12,
     padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statItem: {
     flex: 1,
@@ -402,7 +423,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
     textAlign: 'center',
   },
   listContent: {
@@ -470,7 +491,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
   },
   deleteButton: {
     padding: 8,
@@ -517,7 +538,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
     textAlign: 'center',
   },
   paginationContainer: {
@@ -527,14 +548,19 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#ECF1FF',
+    borderTopColor: '#E2E8F0',
   },
   pageButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
     marginHorizontal: 8,
-    backgroundColor: '#ECF1FF',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   pageInfo: {
     paddingHorizontal: 12,

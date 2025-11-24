@@ -9,14 +9,13 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Alert,
   Platform,
   Dimensions,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import predictionService from '../src/services/prediction.service';
-import { PredictionResult, DISEASE_INFO, DISEASE_COLORS } from '../src/types/prediction.types'; // Đã loại bỏ GradCAMAnalysis
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { PredictionResult, DISEASE_INFO, DISEASE_COLORS } from '../src/types/prediction.types';
+import CustomDialog from '../components/dialog/CustomDialog';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +26,22 @@ const PredictionDetailScreen = () => {
 
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Dialog states
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const showDialog = (title: string, message: string) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    navigation.goBack();
+  };
 
   useEffect(() => {
     if (predictionId) {
@@ -41,9 +56,8 @@ const PredictionDetailScreen = () => {
     if (result.success && result.data) {
       setPrediction(result.data);
     } else {
-      Alert.alert('Error', result.message, [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      showDialog('Error', result.message || 'Prediction not found');
+      // handleDialogConfirm sẽ navigate back
     }
     
     setLoading(false);
@@ -69,16 +83,21 @@ const PredictionDetailScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-back" size={24} color="#2260FF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Prediction Detail</Text>
-        <View style={{ width: 40 }} />
+      {/* Header với background xanh */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Image
+              source={require('../assets/Vector_back.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Details</Text>
+        </View>
       </View>
 
       <ScrollView
@@ -165,7 +184,7 @@ const PredictionDetailScreen = () => {
           ))}
         </View>
 
-        {/* Heatmap (if available) - Chỉ giữ lại phần hiển thị ảnh và hint */}
+        {/* Heatmap (if available) */}
         {prediction.heatmap_url && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Heatmap Visualization</Text>
@@ -203,6 +222,15 @@ const PredictionDetailScreen = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Custom Dialog */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        onConfirm={handleDialogConfirm}
+        confirmText="OK"
+      />
     </SafeAreaView>
   );
 };
@@ -210,32 +238,44 @@ const PredictionDetailScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
   },
-  header: {
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? 40 : 0,
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ECF1FF',
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 8,
+    marginRight: 12,
+  },
+  backIcon: {
+    width: 16,
+    height: 16,
+    tintColor: '#FFFFFF',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
       default: 'System',
     }),
-    color: '#2260FF',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 36,
   },
   scrollContent: {
     paddingBottom: 40,
@@ -267,7 +307,7 @@ const styles = StyleSheet.create({
   diseaseSection: {
     padding: 20,
     alignItems: 'center',
-    backgroundColor: '#ECF1FF',
+    backgroundColor: '#FFFFFF',
   },
   diseaseBadgeLarge: {
     paddingHorizontal: 20,
@@ -302,10 +342,11 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
     textAlign: 'center',
     marginBottom: 12,
     paddingHorizontal: 20,
+    lineHeight: 20,
   },
   severityBadge: {
     flexDirection: 'row',
@@ -318,7 +359,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
   },
   severityValue: {
     fontSize: 14,
@@ -329,15 +370,15 @@ const styles = StyleSheet.create({
     }),
   },
   card: {
-    backgroundColor: '#ECF1FF',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
     marginTop: 16,
     padding: 20,
     borderRadius: 12,
-    shadowColor: '#2260FF',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 2,
   },
   cardTitle: {
@@ -352,7 +393,7 @@ const styles = StyleSheet.create({
   },
   confidenceBar: {
     height: 32,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F1F5F9',
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 8,
@@ -392,12 +433,12 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Medium',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#1E293B',
     flex: 1,
   },
   probBarContainer: {
     height: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F1F5F9',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 4,
@@ -428,7 +469,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
     fontStyle: 'italic',
     textAlign: 'center',
   },
@@ -444,7 +485,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#000000',
+    color: '#64748B',
   },
   metadataValue: {
     fontSize: 14,

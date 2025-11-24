@@ -1,7 +1,7 @@
 // src/api/config.ts
 export const API_CONFIG = {
   //BASE_URL: 'http://localhost:8000', // Khi test trên máy tính
- BASE_URL: 'http://192.168.1.131:8000', // Khi test trên điện thoại (thay IP máy tính)
+ BASE_URL: 'http://192.168.1.102:8000', // Khi test trên điện thoại (thay IP máy tính)
   // BASE_URL: 'https://your-domain.com', // Production
   
   TIMEOUT: 10000, // 10 seconds
@@ -20,6 +20,7 @@ export const API_CONFIG = {
     UPDATE_PROFILE: '/profile',
     CHANGE_PASSWORD_IN_APP: '/change-password',
     DELETE_ACCOUNT: '/account',
+    UPLOAD_AVATAR: '/avatar',
     
     // Prediction endpoints
     PREDICT: '/predictions/predict',

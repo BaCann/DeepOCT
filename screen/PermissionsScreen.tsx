@@ -179,24 +179,21 @@ const PermissionsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Image
-            source={require('../assets/Vector_back.png')}
-            style={styles.backIcon}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
+      {/* Header với background xanh */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Image
+              source={require('../assets/Vector_back.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Permissions</Text>
         </View>
-
-        <View style={styles.placeholder} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -214,7 +211,7 @@ const PermissionsScreen = () => {
             <FontAwesome
               name={permission.iconName}
               size={32}
-              color="#444"
+              color="#2260FF"
               style={{ marginRight: 12 }}
             />
             <View style={styles.permissionInfo}>
@@ -257,27 +254,50 @@ const PermissionsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  scrollView: { padding: 20 },
-  headerRow: {
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F8FAFC' 
+  },
+  headerWrapper: {
+    backgroundColor: '#2260FF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 40,
-    marginBottom: 10,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
-  backButton: { padding: 20, transform: [{ translateX: 10 }] },
-  backIcon: { width: 16, height: 16 },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  placeholder: { width: 44 },
+  backButton: { 
+    padding: 8, 
+    marginRight: 12 
+  },
+  backIcon: { 
+    width: 16, 
+    height: 16,
+    tintColor: '#FFFFFF',
+  },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
+      ios: 'LeagueSpartan-Bold',
+      android: 'LeagueSpartan-Bold',
       default: 'System',
     }),
-    color: '#2260FF',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 36,
+  },
+  scrollView: { 
+    padding: 20,
+    paddingTop: 20,
   },
   description: {
     fontSize: 14,
@@ -323,7 +343,11 @@ const styles = StyleSheet.create({
     }),
     color: '#64748B',
   },
-  statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  statusBadge: { 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    borderRadius: 12 
+  },
   statusText: {
     fontSize: 12,
     fontFamily: Platform.select({
@@ -340,6 +364,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 24,
+    shadowColor: '#2260FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   settingsButtonText: {
     color: '#FFFFFF',

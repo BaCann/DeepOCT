@@ -87,6 +87,26 @@ class UserService {
     }
   }
 
+  async uploadAvatar(imageUri: string): Promise<{ success: boolean; data?: UserProfile; message: string }> {
+    try {
+      const updatedProfile = await userApi.uploadAvatar(imageUri);
+      
+      // Cập nhật storage với profile mới (có avatar_url)
+      await StorageService.setUserData(updatedProfile);
+      
+      return { 
+        success: true, 
+        data: updatedProfile, 
+        message: 'Avatar updated successfully' 
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: this.handleError(error) 
+      };
+    }
+  }
+
 
   async logout(): Promise<void> {
     await StorageService.clearAll();

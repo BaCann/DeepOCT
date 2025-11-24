@@ -46,8 +46,7 @@ const LoginScreen = () => {
 
   const handleDialogConfirm = () => {
     setDialogVisible(false);
-    
-    // Nếu là thông báo thành công, chuyển sang màn Main
+
     if (dialogType === 'success') {
       navigation.dispatch(
         CommonActions.reset({
@@ -112,8 +111,8 @@ const LoginScreen = () => {
         <Text style={styles.headerTitle}>Welcome!</Text>
       </View>
 
-      {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
+        
         {/* Email */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
@@ -158,11 +157,11 @@ const LoginScreen = () => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={handleForgetPassword} style={styles.forgetPasswordBtn}>
-            <Text style={styles.forgetPasswordText}>Forgot Password</Text>
+            <Text style={styles.forgetPasswordText}>Forgot Password ?</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Log In Button */}
+        {/* Login Button */}
         <TouchableOpacity 
           style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
           onPress={handleLogin}
@@ -175,20 +174,7 @@ const LoginScreen = () => {
           )}
         </TouchableOpacity>
 
-        {/* Or sign up with */}
-        <View style={styles.orRow}>
-          <Text style={styles.orText}>or log in with</Text>
-        </View>
-
-        {/* Google Button */}
-        <TouchableOpacity style={styles.googleButton}>
-          <Image
-            source={require('../assets/logo_gg.png')}
-            style={styles.googleIcon}
-          />
-        </TouchableOpacity>
-
-        {/* Sign Up Link */}
+        {/* Sign Up */}
         <View style={styles.signupRow}>
           <Text style={styles.signupText}>Don't have an account? </Text>
           <TouchableOpacity onPress={handleSignUp}>
@@ -197,7 +183,6 @@ const LoginScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
@@ -210,185 +195,29 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  scrollView: {
-    flexGrow: 1,
-    paddingHorizontal: 30,
-  },
-  headerLeft: {
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    paddingLeft: 40,
-    marginBottom: 40,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 40,
-    marginBottom: 10,
-  },
-  backButton: {
-    padding: 20,
-    alignSelf: 'flex-start',
-    transform: [{ translateX: 10 }],
-  },
-  backIcon: {
-    width: 16,
-    height: 16,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-    paddingLeft: -20,
-  },
-  placeholder: {
-    width: 44,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
-      default: 'System',
-    }),
-    color: '#2260FF',
-    transform: [{ translateX: -15 }],
-  },
-  inputContainer: {
-    marginBottom: 10,
-    marginTop: 0,
-  },
-  label: {
-    fontSize: 18,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
-    color: '#000000',
-    marginBottom: 8,
-  },
-  input: {
-    height: 50,
-    backgroundColor: '#ECF1FF',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    color: '#2260FF',
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Regular',
-      android: 'LeagueSpartan-Regular',
-      default: 'System',
-    }),
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  eyeButton: {
-    padding: 8,
-    marginLeft: -36,
-    zIndex: 1,
-  },
-  eyeIcon: {
-    width: 18,
-    height: 18,
-    tintColor: '#809CFF',
-  },
-  forgetPasswordBtn: {
-    alignSelf: 'flex-end',
-    marginTop: 6,
-  },
-  forgetPasswordText: {
-    color: '#2260FF',
-    fontSize: 14,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
-  },
-  loginButton: {
-    backgroundColor: '#2260FF',
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    width: 200,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  loginButtonDisabled: {
-    opacity: 0.6,
-  },
-  loginButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
-  },
-  orRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-    justifyContent: 'center',
-  },
-  orText: {
-    color: '#000000',
-    fontSize: 13,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Light',
-      android: 'LeagueSpartan-Light',
-      default: 'System',
-    }),
-  },
-  googleButton: {
-    alignSelf: 'center',
-    backgroundColor: '#ECF1FF',
-    width: 0,
-    height: 0,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 15,
-    marginBottom: 32,
-  },
-  googleIcon: {
-    width: 45,
-    height: 45,
-    resizeMode: 'contain',
-  },
-  signupRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  signupText: {
-    color: '#000000',
-    fontSize: 14,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Light',
-      android: 'LeagueSpartan-Light',
-      default: 'System',
-    }),
-  },
-  signupLink: {
-    color: '#2260FF',
-    fontSize: 14,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-SemiBold',
-      android: 'LeagueSpartan-SemiBold',
-      default: 'System',
-    }),
-  },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  scrollView: { flexGrow: 1, paddingHorizontal: 30 },
+  headerLeft: { alignItems: 'flex-start', paddingLeft: 40, marginBottom: 40 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 40, marginBottom: 10 },
+  backButton: { padding: 20, transform: [{ translateX: 10 }] },
+  backIcon: { width: 16, height: 16 },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  placeholder: { width: 44 },
+  headerTitle: { fontSize: 28, fontFamily: Platform.select({ ios: 'LeagueSpartan-SemiBold', android: 'LeagueSpartan-SemiBold' }), color: '#2260FF', transform: [{ translateX: -15 }] },
+  inputContainer: { marginBottom: 10 },
+  label: { fontSize: 18, fontFamily: Platform.select({ ios: 'LeagueSpartan-Medium', android: 'LeagueSpartan-Medium' }), color: '#000000', marginBottom: 8 },
+  input: { height: 50, backgroundColor: '#ECF1FF', borderRadius: 10, paddingHorizontal: 15, fontSize: 16, color: '#2260FF' },
+  passwordRow: { flexDirection: 'row', alignItems: 'center' },
+  eyeButton: { padding: 8, marginLeft: -36, zIndex: 1 },
+  eyeIcon: { width: 18, height: 18, tintColor: '#809CFF' },
+  forgetPasswordBtn: { alignSelf: 'flex-end', marginTop: 6 },
+  forgetPasswordText: { color: '#2260FF', fontSize: 14 },
+  loginButton: { backgroundColor: '#2260FF', height: 50, borderRadius: 25, alignItems: 'center', width: 200, alignSelf: 'center', justifyContent: 'center', marginTop: 10 },
+  loginButtonDisabled: { opacity: 0.6 },
+  loginButtonText: { color: '#FFFFFF', fontSize: 18 },
+  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 8 },
+  signupText: { color: '#000000', fontSize: 14 },
+  signupLink: { color: '#2260FF', fontSize: 14 },
 });
 
 export default LoginScreen;
