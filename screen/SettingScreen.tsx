@@ -9,7 +9,7 @@ import {
   Switch,
   ScrollView,
   Image,
-  Alert,
+  Alert, 
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -18,7 +18,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
 import { UserProfile } from '../src/types/user.types';
-import CustomDialog from '../components/dialog/CustomDialog';
+// Import DialogOption từ CustomDialog
+import CustomDialog, { DialogOption } from '../components/dialog/CustomDialog'; 
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';  
 
@@ -31,12 +32,14 @@ const SettingScreen = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
   const [dialogMode, setDialogMode] = useState<DialogMode>('info');
   const [dialogShowCancel, setDialogShowCancel] = useState(false);
+  
+  const [actionSheetVisible, setActionSheetVisible] = useState(false);
+
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -58,6 +61,11 @@ const SettingScreen = () => {
 
     if (dialogMode === 'logoutConfirm') {
       await userService.logout();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' as any }], 
+      });
+
     } else if (dialogMode === 'deleteConfirm') {
       navigation.navigate('DeleteAccount' as any);
     }
@@ -88,28 +96,11 @@ const SettingScreen = () => {
   };
 
   const handleAvatarPress = () => {
-    Alert.alert(
-      'Change Profile Photo',
-      'Choose an option',
-      [
-        {
-          text: 'Take Photo',
-          onPress: handleTakePhoto,
-        },
-        {
-          text: 'Choose from Library',
-          onPress: handleChooseFromLibrary,
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-      ],
-      { cancelable: true }
-    );
+    setActionSheetVisible(true);
   };
 
   const handleTakePhoto = async () => {
+    setActionSheetVisible(false); 
     try {
       const result = await launchCamera({
         mediaType: 'photo',
@@ -129,6 +120,7 @@ const SettingScreen = () => {
   };
 
   const handleChooseFromLibrary = async () => {
+    setActionSheetVisible(false);
     try {
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -146,19 +138,34 @@ const SettingScreen = () => {
       showDialog('Error', 'Failed to select photo', 'info', false);
     }
   };
+  
+  const avatarOptions: DialogOption[] = [
+    {
+      text: 'Take Photo',
+      onPress: handleTakePhoto,
+      style: 'default',
+    },
+    {
+      text: 'Choose from Library',
+      onPress: handleChooseFromLibrary,
+      style: 'default',
+    },
+    {
+      text: 'Cancel',
+      onPress: () => setActionSheetVisible(false),
+      style: 'cancel',
+    },
+  ];
 
   const uploadAvatar = async (uri: string) => {
     setUploadingAvatar(true);
     
     try {
-      // Gọi API upload avatar
       const result = await userService.uploadAvatar(uri);
       
       if (result.success && result.data) {
-        // Cập nhật profile với data mới từ server
         setProfile(result.data);
         
-        // Set avatar URI để hiển thị
         setAvatarUri(result.data.avatar_url || uri);
         
         showDialog('Success', 'Profile photo updated successfully', 'info', false);
@@ -217,7 +224,7 @@ const SettingScreen = () => {
         </View>
       </View>
 
-       {/* Profile Section - Di chuyển ra ngoài headerWrapper */}
+        {/* Profile Section - Di chuyển ra ngoài headerWrapper */}
       <View style={styles.profileContainer}>
         {profile && (
           <View style={styles.profileSection}>
@@ -312,6 +319,7 @@ const SettingScreen = () => {
         <Text style={styles.version}></Text>
       </ScrollView>
 
+      {/* Custom Dialog cho thông báo (Giữ nguyên) */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
@@ -328,6 +336,15 @@ const SettingScreen = () => {
         }
         cancelText='Cancel'
       />
+      
+      <CustomDialog
+        isVisible={actionSheetVisible}
+        title="Change Profile Photo"
+        message="Choose an option to change your profile picture."
+        options={avatarOptions}
+        onClose={() => setActionSheetVisible(false)}
+      />
+
     </SafeAreaView>
   );
 };
@@ -346,15 +363,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 8,
-    // borderBottomLeftRadius: 30,
-    // borderBottomRightRadius: 30,
-    // overflow: 'hidden',
   },
   headerContent: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 20,
-    alignItems: 'center',  // Căn giữa
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,
@@ -370,13 +384,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Bold',  // ĐỔI từ Medium thành Bold
-      default: 'System',
-    }),
-    color: '#FFFFFF',  // ĐỔI từ '#2260FF' thành '#FFFFFF'
-    textAlign: 'center',  // THÊM: căn giữa text
+    fontFamily: Platform.select({ ios: 'LeagueSpartan-SemiBold', android: 'LeagueSpartan-SemiBold' }), 
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   profileContainer: {
     paddingHorizontal: 20,
@@ -442,7 +452,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
-      default: 'System',
     }),
     color: '#1E293B',
     marginBottom: 4,
@@ -452,7 +461,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
     color: '#64748B',
   },
@@ -467,7 +475,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
     color: '#2260FF',
   },
@@ -487,7 +494,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
-      default: 'System',
     }),
     color: '#64748B',
     marginLeft: 16,
@@ -512,7 +518,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
     color: '#1E293B',
   },
@@ -528,7 +533,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
     color: '#94A3B8',
     textAlign: 'center',

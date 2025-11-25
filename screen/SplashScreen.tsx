@@ -12,16 +12,11 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import StorageService from '../src/utils/storage';
 import userService from '../src/services/user.service';
-import CustomDialog from '../components/dialog/CustomDialog'; // 👈 Import CustomDialog
+import CustomDialog from '../components/dialog/CustomDialog';
 
-// Định nghĩa Dialog Mode
 type DialogMode = 'fatalError';
 
-const delay = (ms: number): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => resolve(), ms);
-  });
-};
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 const SplashScreen = () => {
   const navigation = useNavigation<any>();
@@ -32,7 +27,6 @@ const SplashScreen = () => {
   const [dialogMessage, setDialogMessage] = useState('');
   const [dialogMode, setDialogMode] = useState<DialogMode>('fatalError');
 
-  // Biến cờ để theo dõi xem có nên hiển thị splash screen hay không
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -47,9 +41,8 @@ const SplashScreen = () => {
   };
   
   const handleDialogConfirm = () => {
-      // Khi gặp lỗi nghiêm trọng, chuyển hướng đến màn hình chào mừng/login
-      setDialogVisible(false);
-      navigation.replace('Welcome');
+    setDialogVisible(false);
+    navigation.replace('Welcome'); // Quay về Welcome sau khi nhấn OK
   };
 
   const checkAuthAndNavigate = async () => {
@@ -64,56 +57,52 @@ const SplashScreen = () => {
       }
 
       try {
-        const [result] = await Promise.all([
-          userService.getProfile(),
-          minSplashTime,
-        ]);
-        
+        const [result] = await Promise.all([userService.getProfile(), minSplashTime]);
+
         if (result.success && result.data) {
           await delay(500);
-          
           navigation.reset({
             index: 0,
             routes: [{ name: 'Main', params: { screen: 'Tabs' } }],
           });
         } else {
-          // Token tồn tại nhưng API thất bại => Xóa token và về Login
+          // Token tồn tại nhưng API thất bại → xóa token và về Login
           await StorageService.clearAll();
-          navigation.replace('Login');
+          showDialog('Authentication Failed', result.message || 'Please log in again.');
         }
-      } catch (error) {
-        // Lỗi kết nối/lỗi nghiêm trọng trong quá trình xác thực
+      } catch (error: any) {
         console.error('Auth verification failed:', error);
-        
+
         const cachedProfile = await StorageService.getUserData();
-        
+
         if (cachedProfile) {
-          // Có dữ liệu profile cũ, cho phép vào app nhưng profile có thể lỗi
+          // Có dữ liệu profile cũ → vào app
           await delay(500);
-          
           navigation.reset({
             index: 0,
             routes: [{ name: 'Main', params: { screen: 'Tabs' } }],
           });
         } else {
-          // Không có cached profile => Lỗi nghiêm trọng, về Login
+          // Không có cached profile → hiện CustomDialog cảnh báo chi tiết từ backend
           await StorageService.clearAll();
-          
-          // Thay thế navigation.replace('Login') bằng CustomDialog
-          // Show dialog cảnh báo người dùng trước khi về Login
-          showDialog(
-             'Connection Error', 
-             'Could not verify user data. Please check your connection and try logging in again.',
-          );
-          // 💡 LƯU Ý: navigation.replace('Login') sẽ được gọi trong handleDialogConfirm
+
+          // Lấy thông tin chi tiết từ error.response.data.detail nếu có
+          let message = 'Could not verify user data. Please check your connection and try logging in again.';
+          if (error.response && error.response.data && error.response.data.detail) {
+            message = error.response.data.detail;
+          }
+
+          showDialog('Authentication Error', message);
         }
       }
     } catch (error) {
       console.error('Splash screen general error:', error);
-      // Lỗi chung của Splash Screen
-      navigation.replace('Welcome');
+      showDialog(
+        'Error',
+        'An unexpected error occurred. Please try again later.'
+      );
     } finally {
-        setIsReady(true); // Đánh dấu đã hoàn thành logic kiểm tra
+      setIsReady(true);
     }
   };
 
@@ -129,7 +118,6 @@ const SplashScreen = () => {
       <Text style={styles.subtitle}>OCT Diagnosis Assistant</Text>
       
       <View style={styles.loadingContainer}>
-        {/* Chỉ hiển thị ActivityIndicator nếu dialog không hiển thị */}
         {!dialogVisible && <ActivityIndicator size="large" color="#FFFFFF" />}
       </View>
       
@@ -143,7 +131,6 @@ const SplashScreen = () => {
           message={dialogMessage}
           onConfirm={handleDialogConfirm}
           confirmText="OK"
-          // Không truyền onCancel hay showCancelButton để bắt buộc người dùng nhấn OK
         />
       )}
     </View>

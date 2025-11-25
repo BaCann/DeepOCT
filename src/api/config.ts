@@ -4,7 +4,7 @@
 const isDevelopment = __DEV__;
 
 // Base URLs for different environments
-const DEV_BASE_URL = 'http://192.168.1.102:8000'; // Local network IP
+const DEV_BASE_URL = 'http://192.168.1.131:8000'; // Local network IP
 const PROD_BASE_URL = 'https://deepoct.id.vn';    // Production domain
 
 export const API_CONFIG = {

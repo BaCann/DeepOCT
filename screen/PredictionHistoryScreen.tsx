@@ -374,11 +374,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Bold',
-      default: 'System',
-    }),
+    fontFamily: Platform.select({ ios: 'LeagueSpartan-SemiBold', android: 'LeagueSpartan-SemiBold' }), 
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
@@ -471,7 +467,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
-      default: 'System',
     }),
     color: '#FFFFFF',
   },
@@ -480,7 +475,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
     color: '#2260FF',
   },
@@ -489,7 +483,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Light',
       android: 'LeagueSpartan-Light',
-      default: 'System',
     }),
     color: '#64748B',
   },
@@ -507,7 +500,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Light',
       android: 'LeagueSpartan-Light',
-      default: 'System',
     }),
     color: '#2260FF',
   },
@@ -526,7 +518,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
     color: '#2260FF',
     marginBottom: 8,
@@ -536,7 +527,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Light',
       android: 'LeagueSpartan-Light',
-      default: 'System',
     }),
     color: '#64748B',
     textAlign: 'center',
@@ -570,7 +560,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
     color: '#2260FF',
   }

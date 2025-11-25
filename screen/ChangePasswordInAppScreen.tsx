@@ -10,6 +10,8 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  // THÊM: KeyboardAvoidingView
+  KeyboardAvoidingView, 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -85,10 +87,10 @@ const ChangePasswordInAppScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh */}
+      {/* Header với background xanh (Phần này cố định, không nằm trong ScrollView) */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} disabled={loading}>
             <Image
               source={require('../assets/Vector_back.png')}
               style={styles.backIcon}
@@ -98,114 +100,125 @@ const ChangePasswordInAppScreen = () => {
           <Text style={styles.headerTitle}>Change Password</Text>
         </View>
       </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        keyboardShouldPersistTaps="handled"
+      
+      {/* BỌC ScrollView BẰNG KeyboardAvoidingView */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} // Tùy chọn điều chỉnh thêm offset
       >
-        {/* Current Password */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Current Password</Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Enter current password"
-              placeholderTextColor="#B5C9FF"
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              secureTextEntry={!showCurrentPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-            >
-              <Image
-                source={
-                  showCurrentPassword
-                    ? require('../assets/Eye-open.png')
-                    : require('../assets/Eye-off.png')
-                }
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* New Password */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>New Password</Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Enter new password"
-              placeholderTextColor="#B5C9FF"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              secureTextEntry={!showNewPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowNewPassword(!showNewPassword)}
-            >
-              <Image
-                source={
-                  showNewPassword
-                    ? require('../assets/Eye-open.png')
-                    : require('../assets/Eye-off.png')
-                }
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Confirm New Password */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirm New Password</Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Confirm new password"
-              placeholderTextColor="#B5C9FF"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              <Image
-                source={
-                  showConfirmPassword
-                    ? require('../assets/Eye-open.png')
-                    : require('../assets/Eye-off.png')
-                }
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Change Password Button */}
-        <TouchableOpacity
-          style={[styles.changeButton, loading && styles.changeButtonDisabled]}
-          onPress={handleChangePassword}
-          disabled={loading}
+        <ScrollView
+          contentContainerStyle={styles.scrollView}
+          keyboardShouldPersistTaps="handled"
         >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.changeButtonText}>Change Password</Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
+          {/* Current Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Current Password</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Enter current password"
+                placeholderTextColor="#B5C9FF"
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+                secureTextEntry={!showCurrentPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                disabled={loading}
+              >
+                <Image
+                  source={
+                    showCurrentPassword
+                      ? require('../assets/Eye-open.png')
+                      : require('../assets/Eye-off.png')
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* New Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>New Password</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Enter new password"
+                placeholderTextColor="#B5C9FF"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry={!showNewPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowNewPassword(!showNewPassword)}
+                disabled={loading}
+              >
+                <Image
+                  source={
+                    showNewPassword
+                      ? require('../assets/Eye-open.png')
+                      : require('../assets/Eye-off.png')
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Confirm New Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Confirm New Password</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Confirm new password"
+                placeholderTextColor="#B5C9FF"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={loading}
+              >
+                <Image
+                  source={
+                    showConfirmPassword
+                      ? require('../assets/Eye-open.png')
+                      : require('../assets/Eye-off.png')
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Change Password Button */}
+          <TouchableOpacity
+            style={[styles.changeButton, loading && styles.changeButtonDisabled]}
+            onPress={handleChangePassword}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.changeButtonText}>Change Password</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      {/* Kết thúc KeyboardAvoidingView */}
 
       {/* Custom Dialog */}
       <CustomDialog
@@ -223,6 +236,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   headerWrapper: {
     backgroundColor: '#2260FF',
@@ -251,30 +267,26 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Bold',
-      default: 'System',
-    }),
+    fontFamily: Platform.select({ ios: 'LeagueSpartan-SemiBold', android: 'LeagueSpartan-SemiBold' }), 
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
-    marginRight: 36,
+    marginRight: 36, 
   },
   scrollView: {
     flexGrow: 1,
     paddingHorizontal: 30,
-    paddingTop: 40,
+    paddingTop: 20,
+    paddingBottom: 40, 
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   label: {
     fontSize: 18,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
     color: '#000000',
     marginBottom: 8,
@@ -289,7 +301,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
   },
   passwordRow: {
@@ -314,7 +325,7 @@ const styles = StyleSheet.create({
     width: 200,
     alignSelf: 'center',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 15,
     shadowColor: '#2260FF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

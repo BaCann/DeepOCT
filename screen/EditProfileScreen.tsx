@@ -46,8 +46,7 @@ const EditProfileScreen = () => {
 
   const handleDialogConfirm = () => {
     setDialogVisible(false);
-    
-    // Nếu là thông báo thành công, quay lại màn hình trước
+
     if (dialogType === 'success') {
       navigation.goBack();
     }
@@ -63,12 +62,13 @@ const EditProfileScreen = () => {
     setLoading(false);
   };
 
-  // Hàm xác thực
+  // Validate
   const validateInput = () => {
-    const nameRegex = /^[a-zA-Z\s]+$/; // Chỉ chấp nhận chữ cái và khoảng trắng
-    const mobileRegex = /^[0-9]+$/; // Chỉ chấp nhận số
-    const dateRegex = /^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$/; 
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    const mobileRegex = /^[0-9]+$/;
+    const dateRegex = /^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$/;
 
+    // FULL NAME
     if (!fullName.trim()) {
       showDialog('Error', 'Full name is required', 'error');
       return false;
@@ -77,21 +77,32 @@ const EditProfileScreen = () => {
       showDialog('Error', 'Full name must contain only letters and spaces', 'error');
       return false;
     }
-    if (mobileNumber && !mobileRegex.test(mobileNumber)) {
+
+    // MOBILE NUMBER
+    if (!mobileNumber.trim()) {
+      showDialog('Error', 'Mobile number is required', 'error');
+      return false;
+    }
+    if (!mobileRegex.test(mobileNumber)) {
       showDialog('Error', 'Mobile number must contain only digits', 'error');
       return false;
     }
-    if (dateOfBirth && !dateRegex.test(dateOfBirth)) {
-        showDialog('Error', 'Date of Birth must be in a valid format (e.g., DD/MM/YYYY or YYYY-MM-DD)', 'error');
-        return false;
+
+    // DATE OF BIRTH
+    if (!dateOfBirth.trim()) {
+      showDialog('Error', 'Date of Birth is required', 'error');
+      return false;
     }
+    if (!dateRegex.test(dateOfBirth)) {
+      showDialog('Error', 'Date of Birth must be a valid format (DD/MM/YYYY or YYYY-MM-DD)', 'error');
+      return false;
+    }
+
     return true;
   };
 
   const handleSave = async () => {
-    if (!validateInput()) {
-      return;
-    }
+    if (!validateInput()) return;
 
     setSaving(true);
 
@@ -126,7 +137,7 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh */}
+      {/* Header */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -140,10 +151,8 @@ const EditProfileScreen = () => {
         </View>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
+
         {/* Full Name */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Full Name</Text>
@@ -192,15 +201,11 @@ const EditProfileScreen = () => {
           onPress={handleSave}
           disabled={saving}
         >
-          {saving ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          )}
+          {saving ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveButtonText}>Save Changes</Text>}
         </TouchableOpacity>
       </ScrollView>
-      
-      {/* Custom Dialog */}
+
+      {/* Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
@@ -249,11 +254,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Bold',
-      default: 'System',
-    }),
+    fontFamily: Platform.select({ ios: 'LeagueSpartan-SemiBold', android: 'LeagueSpartan-SemiBold' }),
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
@@ -262,18 +263,14 @@ const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
     paddingHorizontal: 30,
-    paddingTop: 40,
+    paddingTop: 25,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   label: {
     fontSize: 18,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-      default: 'System',
-    }),
+    fontFamily: Platform.select({ ios: 'LeagueSpartan-Medium', android: 'LeagueSpartan-Medium' }),
     color: '#000000',
     marginBottom: 8,
   },
@@ -298,7 +295,7 @@ const styles = StyleSheet.create({
     width: 200,
     alignSelf: 'center',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 20,
     shadowColor: '#2260FF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

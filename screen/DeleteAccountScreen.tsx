@@ -10,6 +10,8 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  // THÊM: KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -114,7 +116,7 @@ const DeleteAccountScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} disabled={loading}>
           <Image
             source={require('../assets/Vector_back.png')}
             style={styles.backIcon}
@@ -128,78 +130,86 @@ const DeleteAccountScreen = () => {
 
         <View style={styles.placeholder} />
       </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        keyboardShouldPersistTaps="handled"
+      
+      {/* BỌC ScrollView BẰNG KeyboardAvoidingView */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Warning Icon */}
-        <View style={styles.warningContainer}>
-          <Text style={styles.warningIcon}>⚠️</Text>
-        </View>
-
-        {/* Warning Text */}
-        <Text style={styles.warningTitle}>This action is permanent!</Text>
-        <Text style={styles.warningText}>
-          Deleting your account will:{'\n\n'}
-          • Remove all your personal data{'\n'}
-          • Delete all your OCT scans and results{'\n'}
-          • Cancel any active subscriptions{'\n'}
-          • This action CANNOT be undone
-        </Text>
-
-        {/* Password Input */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Enter your password to confirm</Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Password"
-              placeholderTextColor="#B5C9FF"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Image
-                source={
-                  showPassword
-                    ? require('../assets/Eye-open.png')
-                    : require('../assets/Eye-off.png')
-                }
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
+        <ScrollView
+          contentContainerStyle={styles.scrollView}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Warning Icon */}
+          <View style={styles.warningContainer}>
+            <Text style={styles.warningIcon}>⚠️</Text>
           </View>
-        </View>
 
-        {/* Delete Button */}
-        <TouchableOpacity
-          style={[styles.deleteButton, loading && styles.deleteButtonDisabled]}
-          onPress={handleDeleteAccount}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.deleteButtonText}>Delete My Account</Text>
-          )}
-        </TouchableOpacity>
+          {/* Warning Text */}
+          <Text style={styles.warningTitle}>This action is permanent!</Text>
+          <Text style={styles.warningText}>
+            Deleting your account will:{'\n\n'}
+            • Remove all your personal data{'\n'}
+            • Delete all your OCT scans and results{'\n'}
+            • Cancel any active subscriptions{'\n'}
+            • This action CANNOT be undone
+          </Text>
 
-        {/* Cancel Button */}
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => navigation.goBack()}
-          disabled={loading}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          {/* Password Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Enter your password to confirm</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Password"
+                placeholderTextColor="#B5C9FF"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+                disabled={loading}
+              >
+                <Image
+                  source={
+                    showPassword
+                      ? require('../assets/Eye-open.png')
+                      : require('../assets/Eye-off.png')
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Delete Button */}
+          <TouchableOpacity
+            style={[styles.deleteButton, loading && styles.deleteButtonDisabled]}
+            onPress={handleDeleteAccount}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.deleteButtonText}>Delete My Account</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Cancel Button */}
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => navigation.goBack()}
+            disabled={loading}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      {/* Kết thúc KeyboardAvoidingView */}
 
       {/* Custom Dialog */}
       <CustomDialog
@@ -221,10 +231,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  // THÊM: Style cho KeyboardAvoidingView
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   scrollView: {
     flexGrow: 1,
     paddingHorizontal: 30,
     paddingTop: 40,
+    // THÊM: Padding dưới để bàn phím không che
+    paddingBottom: 40, 
   },
   headerRow: {
     flexDirection: 'row',
@@ -253,7 +269,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
-      default: 'System',
     }),
     color: '#EF4444',
   },
@@ -269,7 +284,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Bold',
       android: 'LeagueSpartan-Bold',
-      default: 'System',
     }),
     color: '#EF4444',
     textAlign: 'center',
@@ -280,7 +294,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
     color: '#64748B',
     textAlign: 'center',
@@ -295,7 +308,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
     color: '#000000',
     marginBottom: 8,
@@ -310,7 +322,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
   },
   passwordRow: {
@@ -345,7 +356,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
   },
   cancelButton: {
@@ -360,7 +370,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
   },
 });

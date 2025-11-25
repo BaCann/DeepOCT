@@ -285,11 +285,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Bold',
-      android: 'LeagueSpartan-Bold',
-      default: 'System',
-    }),
+    fontFamily: Platform.select({ ios: 'LeagueSpartan-SemiBold', android: 'LeagueSpartan-SemiBold' }), 
     color: '#FFFFFF',
     flex: 1,
     textAlign: 'center',
@@ -304,7 +300,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Regular',
       android: 'LeagueSpartan-Regular',
-      default: 'System',
     }),
     color: '#64748B',
     marginBottom: 24,
@@ -329,7 +324,6 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-SemiBold',
       android: 'LeagueSpartan-SemiBold',
-      default: 'System',
     }),
     color: '#1E293B',
     marginBottom: 4,

@@ -10,11 +10,13 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  // THÊM:
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { format, isValid } from 'date-fns'; // Import isValid for better date checking
+import { format, isValid } from 'date-fns'; 
 import authService from '../src/services/auth.service';
 import CustomDialog from '../components/dialog/CustomDialog';
 
@@ -107,8 +109,10 @@ const RegisterScreen = () => {
                 showDialog('Error', 'Date of Birth format must be DD/MM/YYYY.', 'error');
                 return false;
             }
+            // Chú ý: Date constructor trong JS nhận MM-DD-YYYY hoặc YYYY/MM/DD, 
+            // nên cần chuyển sang định dạng YYYY-MM-DD để isValid hoạt động chính xác
             const parsedDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            if (!isValid(parsedDate)) {
+            if (!isValid(parsedDate) || parsedDate.getFullYear() != parseInt(parts[2]) || parsedDate.getMonth() != parseInt(parts[1]) - 1 || parsedDate.getDate() != parseInt(parts[0])) {
                  showDialog('Error', 'Date of Birth is invalid.', 'error');
                  return false;
             }
@@ -160,183 +164,193 @@ const RegisterScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
-            <Image
-              source={require('../assets/Vector_back.png')}
-              style={styles.backIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>New Account</Text>
-          </View>
-
-          <View style={styles.placeholder} />
-        </View>
-
-        {/* Full Name */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Full name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your name"
-            placeholderTextColor="#809CFF"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words" // Gợi ý autoCapitalize
-            editable={!loading}
-          />
-        </View>
-
-        {/* Email */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your Email"
-            value={email}
-            placeholderTextColor="#809CFF"
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!loading}
-          />
-        </View>
-
-        {/* Password */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Enter your password"
-              value={password}
-              placeholderTextColor="#809CFF"
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
-              disabled={loading}
-            >
-              <Image
-                source={
-                  showPassword
-                    ? require('../assets/Eye-open.png')
-                    : require('../assets/Eye-off.png')
-                      
-                }
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Confirm Password */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirm Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              placeholderTextColor="#809CFF"
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showConfirmPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              disabled={loading}
-            >
-              <Image
-                source={
-                  showConfirmPassword
-                    ? require('../assets/Eye-open.png')
-                    : require('../assets/Eye-off.png')
-                      
-                }
-                style={styles.eyeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Phone Number */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your Phone number"
-            value={phone}
-            placeholderTextColor="#809CFF"
-            onChangeText={setPhone}
-            autoCapitalize="none"
-            keyboardType="phone-pad"
-            editable={!loading}
-          />
-        </View>
-
-
-        {/* Date of birth */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Date of Birth</Text>
-          <TouchableOpacity onPress={showDatepicker} disabled={loading}>
-            <View style={styles.input}>
-              <Text 
-                style={[
-                  styles.inputText, 
-                  !dob && { color: '#809CFF' } 
-                ]}
-              >
-                {dob || 'DD/MM/YYYY'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={onDateChange}
-              maximumDate={new Date()}
-              minimumDate={new Date(1900, 0, 1)}
-            />
-          )}
-        </View>
-
-
-        {/* Register Button */}
-        <TouchableOpacity 
-          style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
-          onPress={handleRegister}
-          disabled={loading}
+      {/* Bọc toàn bộ nội dung cuộn bằng KeyboardAvoidingView */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollView}
+          keyboardShouldPersistTaps="handled" // Giúp tương tác với các component khác dễ hơn khi bàn phím mở
         >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.registerButtonText}>Register</Text>
-          )}
-        </TouchableOpacity>
+          <View style={styles.headerRow}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
+              <Image
+                source={require('../assets/Vector_back.png')}
+                style={styles.backIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
 
-        {/* Login Link */}
-      <View style={styles.loginLinkRow}>
-        <Text style={styles.signinText}>Already have an account? </Text>
-        <TouchableOpacity onPress={handleSignIn} disabled={loading}>
-          <Text style={styles.loginLinkText}>Sign In</Text>
-        </TouchableOpacity>
-      </View>
+            <View style={styles.headerCenter}>
+              <Text style={styles.headerTitle}>New Account</Text>
+            </View>
 
-      </ScrollView>
+            <View style={styles.placeholder} />
+          </View>
+
+          {/* Full Name */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Full name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your name"
+              placeholderTextColor="#809CFF"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words" 
+              editable={!loading}
+            />
+          </View>
+
+          {/* Email */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your Email"
+              value={email}
+              placeholderTextColor="#809CFF"
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
+          </View>
+
+          {/* Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Enter your password"
+                value={password}
+                placeholderTextColor="#809CFF"
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+                disabled={loading}
+              >
+                <Image
+                  source={
+                    showPassword
+                      ? require('../assets/Eye-open.png')
+                      : require('../assets/Eye-off.png')
+                        
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Confirm Password */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[styles.input, { flex: 1 }]}
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                placeholderTextColor="#809CFF"
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={loading}
+              >
+                <Image
+                  source={
+                    showConfirmPassword
+                      ? require('../assets/Eye-open.png')
+                      : require('../assets/Eye-off.png')
+                        
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Phone Number */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your Phone number"
+              value={phone}
+              placeholderTextColor="#809CFF"
+              onChangeText={setPhone}
+              autoCapitalize="none"
+              keyboardType="phone-pad"
+              editable={!loading}
+            />
+          </View>
+
+
+          {/* Date of birth */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Date of Birth</Text>
+            <TouchableOpacity onPress={showDatepicker} disabled={loading}>
+              <View style={styles.input}>
+                <Text 
+                  style={[
+                    styles.inputText, 
+                    !dob && { color: '#809CFF' } 
+                  ]}
+                >
+                  {dob || 'DD/MM/YYYY'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                maximumDate={new Date()}
+                minimumDate={new Date(1900, 0, 1)}
+              />
+            )}
+          </View>
+
+
+          {/* Register Button */}
+          <TouchableOpacity 
+            style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.registerButtonText}>Register</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Login Link */}
+        <View style={styles.loginLinkRow}>
+          <Text style={styles.signinText}>Already have an account? </Text>
+          <TouchableOpacity onPress={handleSignIn} disabled={loading}>
+            <Text style={styles.loginLinkText}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+
+        </ScrollView>
+      </KeyboardAvoidingView>
+      {/* Kết thúc KeyboardAvoidingView */}
 
       {/* Custom Dialog */}
       <CustomDialog
@@ -355,9 +369,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  // THÊM: Style cho KeyboardAvoidingView để nó chiếm toàn bộ không gian
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   scrollView: {
     flexGrow: 1,
     paddingHorizontal: 30,
+    // THÊM: paddingBottom để tạo khoảng trống cuối ScrollView (tùy chọn)
+    paddingBottom: 40, 
   },
 
   loginLinkRow: {
@@ -483,7 +503,7 @@ eyeIcon: {
     borderRadius: 25,
     alignItems: 'center',
     width: 200,
-      alignSelf: 'center',
+    alignSelf: 'center',
     justifyContent: 'center',
     marginTop: 30,
   },
