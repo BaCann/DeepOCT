@@ -304,6 +304,10 @@ const styles = StyleSheet.create({
   },
   loginButtonText: { 
     color: '#FFFFFF', 
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
+    }),
     fontSize: 18 
   },
   signupRow: { 

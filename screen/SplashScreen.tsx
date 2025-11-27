@@ -42,7 +42,7 @@ const SplashScreen = () => {
   
   const handleDialogConfirm = () => {
     setDialogVisible(false);
-    navigation.replace('Welcome'); // Quay về Welcome sau khi nhấn OK
+    navigation.replace('Welcome'); 
   };
 
   const checkAuthAndNavigate = async () => {
@@ -66,7 +66,6 @@ const SplashScreen = () => {
             routes: [{ name: 'Main', params: { screen: 'Tabs' } }],
           });
         } else {
-          // Token tồn tại nhưng API thất bại → xóa token và về Login
           await StorageService.clearAll();
           showDialog('Authentication Failed', result.message || 'Please log in again.');
         }
@@ -76,17 +75,14 @@ const SplashScreen = () => {
         const cachedProfile = await StorageService.getUserData();
 
         if (cachedProfile) {
-          // Có dữ liệu profile cũ → vào app
           await delay(500);
           navigation.reset({
             index: 0,
             routes: [{ name: 'Main', params: { screen: 'Tabs' } }],
           });
         } else {
-          // Không có cached profile → hiện CustomDialog cảnh báo chi tiết từ backend
           await StorageService.clearAll();
 
-          // Lấy thông tin chi tiết từ error.response.data.detail nếu có
           let message = 'Could not verify user data. Please check your connection and try logging in again.';
           if (error.response && error.response.data && error.response.data.detail) {
             message = error.response.data.detail;

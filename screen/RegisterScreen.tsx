@@ -516,7 +516,6 @@ eyeIcon: {
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
-      default: 'System',
     }),
   },
   loginLink: {

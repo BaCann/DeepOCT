@@ -1,8 +1,8 @@
 // App.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar, useColorScheme, Alert } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 
 // Auth screens
 import SplashScreen from './screen/SplashScreen';
@@ -20,7 +20,7 @@ import DeleteAccountScreen from './screen/DeleteAccountScreen';
 import PermissionsScreen from './screen/PermissionsScreen';
 import AboutScreen from './screen/AboutScreen';
 
-//  Prediction screens
+// Prediction screens
 import PredictionHistoryScreen from './screen/PredictionHistoryScreen';
 import PredictionDetailScreen from './screen/PredictionDetailScreen';
 
@@ -28,7 +28,10 @@ import { TabBar } from './components/bottombar';
 import CameraScreen from './screen/CameraScreen';
 import { authEvents, AUTH_EVENTS } from './src/utils/eventEmitter';
 
-// ===== TYPE DEFINITIONS =====
+// Import CustomDialog component
+import CustomDialog from './components/dialog/CustomDialog'; 
+
+// ===== TYPE DEFINITIONS (Unchanged) =====
 export type RootStackParamList = {
   Auth: undefined;
   Main: { screen: keyof MainStackParamList };
@@ -58,12 +61,12 @@ export type MainStackParamList = {
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-// ===== STACKS =====
+// ===== STACKS (Unchanged) =====
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 
-// ===== AUTH NAVIGATOR =====
+// ===== AUTH NAVIGATOR (Unchanged) =====
 const AuthNavigator = () => (
   <AuthStack.Navigator screenOptions={{ headerShown: false }}>
     <AuthStack.Screen name="Splash" component={SplashScreen} />
@@ -76,7 +79,7 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 );
 
-// ===== MAIN NAVIGATOR =====
+// ===== MAIN NAVIGATOR (Unchanged) =====
 const MainNavigator = () => (
   <MainStack.Navigator screenOptions={{ headerShown: false }}>
     <MainStack.Screen name="Tabs" component={TabBar} />
@@ -91,15 +94,32 @@ const MainNavigator = () => (
   </MainStack.Navigator>
 );
 
-// ===== ROOT APP =====
+// ===== ROOT APP (Modified) =====
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogContent, setDialogContent] = useState({
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+
+  const showDialog = (title: string, message: string, onConfirm: () => void) => {
+    setDialogContent({ title, message, onConfirm });
+    setDialogVisible(true);
+  };
+
+
+  const hideDialog = () => {
+    setDialogVisible(false);
+  };
+
   useEffect(() => {
-    // ===== HANDLE TOKEN EXPIRED (Tự động logout) =====
     const handleTokenExpired = () => {
       if (navigationRef.isReady()) {
-        // Reset về Login screen, Bỏ QUA Splash/Welcome
         navigationRef.reset({
           index: 0,
           routes: [
@@ -113,19 +133,16 @@ function App() {
           ],
         });
 
-        // Hiển thị alert
-        Alert.alert(
-          'Phiên đăng nhập hết hạn',
-          'Vui lòng đăng nhập lại để tiếp tục sử dụng.',
-          [{ text: 'Đồng ý' }]
+        showDialog(
+          'Session Expired',
+          'Your login session has expired. Please log in again to continue using the application.',
+          () => hideDialog() 
         );
       }
     };
 
-    // ===== HANDLE LOGOUT (User logout chủ động) =====
     const handleLogout = () => {
       if (navigationRef.isReady()) {
-        // Reset về Login screen, Bỏ QUA Splash/Welcome
         navigationRef.reset({
           index: 0,
           routes: [
@@ -153,19 +170,31 @@ function App() {
   }, []);
 
   return (
-    <NavigationContainer ref={navigationRef}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Auth" component={AuthNavigator} />
-        <RootStack.Screen
-          name="Main"
-          component={MainNavigator}
-          options={{
-            gestureEnabled: false,
-          }}
-        />
-      </RootStack.Navigator>
-    </NavigationContainer>
+    <>
+      <NavigationContainer ref={navigationRef}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <RootStack.Navigator screenOptions={{ headerShown: false }}>
+          <RootStack.Screen name="Auth" component={AuthNavigator} />
+          <RootStack.Screen
+            name="Main"
+            component={MainNavigator}
+            options={{
+              gestureEnabled: false,
+            }}
+          />
+        </RootStack.Navigator>
+      </NavigationContainer>
+      
+      {/* Custom Dialog Component */}
+      <CustomDialog
+        isVisible={dialogVisible}
+        title={dialogContent.title}
+        message={dialogContent.message}
+        onConfirm={dialogContent.onConfirm}
+        confirmText="OK"
+        showCancelButton={false} 
+      />
+    </>
   );
 }
 

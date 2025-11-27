@@ -109,7 +109,7 @@ const AboutScreen = () => {
             
             {/* Tên Khoa */}
             <Text style={styles.facultyText}>
-              Faculty of Computer Networks and Communications
+              Faculty of Computer Networks and Data Communications
             </Text>
             
             {/* Đường kẻ phân cách */}
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   facultyText: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: Platform.select({
       ios: 'LeagueSpartan-Medium',
       android: 'LeagueSpartan-Medium',
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    gap: 20,  // Khoảng cách giữa 2 logo
+    gap: 20,  
   },
 });
 
