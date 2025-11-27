@@ -4,12 +4,15 @@
 const isDevelopment = __DEV__;
 
 // Base URLs for different environments
-const DEV_BASE_URL = 'http://192.168.1.131:8000'; // Local network IP
+const DEV_BASE_URL = 'http://192.168.1.131:8000'; // Local network IP (for backend development)
 const PROD_BASE_URL = 'https://deepoct.id.vn';    // Production domain
 
+// Configuration flag: Set to true to always use production domain
+const USE_PRODUCTION_URL = true; // ← THAY ĐỔI NÀY ĐỂ SWITCH
+
 export const API_CONFIG = {
-  // Automatically select base URL based on environment
-  BASE_URL: isDevelopment ? DEV_BASE_URL : PROD_BASE_URL,
+  // Use production URL if flag is set, otherwise use environment-based URL
+  BASE_URL: USE_PRODUCTION_URL ? PROD_BASE_URL : (isDevelopment ? DEV_BASE_URL : PROD_BASE_URL),
   
   TIMEOUT: 30000, // 30 seconds (increased for ML inference)
   
@@ -38,15 +41,21 @@ export const API_CONFIG = {
 };
 
 /**
- * Get base URL based on environment
+ * Get base URL based on configuration
  * @returns Base URL string
  */
 export const getBaseUrl = (): string => {
+  if (USE_PRODUCTION_URL) {
+    console.log('🌐 Using PRODUCTION URL:', PROD_BASE_URL);
+    return PROD_BASE_URL;
+  }
+  
   if (isDevelopment) {
-    console.log('Development mode - Using:', DEV_BASE_URL);
+    console.log('💻 Development mode - Using:', DEV_BASE_URL);
     return DEV_BASE_URL;
   }
-  console.log('Production mode - Using:', PROD_BASE_URL);
+  
+  console.log('🚀 Production mode - Using:', PROD_BASE_URL);
   return PROD_BASE_URL;
 };
 
@@ -71,21 +80,15 @@ export const getHealthCheckUrl = (): string => {
 // Export environment info for debugging
 export const ENV_INFO = {
   isDevelopment,
+  useProductionUrl: USE_PRODUCTION_URL,
   baseUrl: getBaseUrl(),
   version: '2.0.0',
 };
 
-// Log current configuration (development only)
-if (isDevelopment) {
-  console.log('API Configuration:', {
-    environment: 'DEVELOPMENT',
-    baseUrl: DEV_BASE_URL,
-    timeout: API_CONFIG.TIMEOUT,
-  });
-} else {
-  console.log('API Configuration:', {
-    environment: 'PRODUCTION',
-    baseUrl: PROD_BASE_URL,
-    timeout: API_CONFIG.TIMEOUT,
-  });
-}
+// Log current configuration
+console.log('📱 API Configuration:', {
+  environment: isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION',
+  useProductionUrl: USE_PRODUCTION_URL,
+  baseUrl: getBaseUrl(),
+  timeout: API_CONFIG.TIMEOUT,
+});
