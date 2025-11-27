@@ -8,8 +8,7 @@ const DEV_BASE_URL = 'http://192.168.1.131:8000'; // Local network IP (for backe
 const PROD_BASE_URL = 'https://deepoct.id.vn';    // Production domain
 
 // Configuration flag: Set to true to always use production domain
-const USE_PRODUCTION_URL = true; // ← THAY ĐỔI NÀY ĐỂ SWITCH
-
+const USE_PRODUCTION_URL = true; 
 export const API_CONFIG = {
   // Use production URL if flag is set, otherwise use environment-based URL
   BASE_URL: USE_PRODUCTION_URL ? PROD_BASE_URL : (isDevelopment ? DEV_BASE_URL : PROD_BASE_URL),
@@ -46,16 +45,16 @@ export const API_CONFIG = {
  */
 export const getBaseUrl = (): string => {
   if (USE_PRODUCTION_URL) {
-    console.log('🌐 Using PRODUCTION URL:', PROD_BASE_URL);
+    console.log('Using PRODUCTION URL:', PROD_BASE_URL);
     return PROD_BASE_URL;
   }
   
   if (isDevelopment) {
-    console.log('💻 Development mode - Using:', DEV_BASE_URL);
+    console.log('Development mode - Using:', DEV_BASE_URL);
     return DEV_BASE_URL;
   }
   
-  console.log('🚀 Production mode - Using:', PROD_BASE_URL);
+  console.log('Production mode - Using:', PROD_BASE_URL);
   return PROD_BASE_URL;
 };
 
@@ -86,7 +85,7 @@ export const ENV_INFO = {
 };
 
 // Log current configuration
-console.log('📱 API Configuration:', {
+console.log('API Configuration:', {
   environment: isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION',
   useProductionUrl: USE_PRODUCTION_URL,
   baseUrl: getBaseUrl(),

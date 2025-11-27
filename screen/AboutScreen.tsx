@@ -121,18 +121,38 @@ const AboutScreen = () => {
           </View>
         </View>
 
-        {/* Contact */}
+        {/* Contact & Legal */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Contact</Text>
+          <Text style={styles.sectionTitle}>Contact & Legal</Text>
+          
+          {/* Email */}
           <TouchableOpacity
-            style={styles.contactButton}
+            style={styles.linkButton}
             onPress={() => handleLinkPress('mailto:noreply.deepoct@gmail.com')}
           >
-            <Text style={styles.contactIcon}>📧</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.contactLabel}>Email Support</Text>
-              <Text style={styles.contactText}>noreply.deepoct@gmail.com</Text>
-            </View>
+            <Text style={styles.linkIcon}>📧</Text>
+            <Text style={styles.linkText}>Email Support</Text>
+            <Text style={styles.linkArrow}>›</Text>
+          </TouchableOpacity>
+
+          {/* Terms of Service */}
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => handleLinkPress('https://infor.deepoct.id.vn/terms.html')}
+          >
+            <Text style={styles.linkIcon}>📄</Text>
+            <Text style={styles.linkText}>Terms of Service</Text>
+            <Text style={styles.linkArrow}>›</Text>
+          </TouchableOpacity>
+
+          {/* Privacy Policy */}
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => handleLinkPress('https://infor.deepoct.id.vn/privacy.html')}
+          >
+            <Text style={styles.linkIcon}>🔒</Text>
+            <Text style={styles.linkText}>Privacy Policy</Text>
+            <Text style={styles.linkArrow}>›</Text>
           </TouchableOpacity>
         </View>
 
@@ -286,12 +306,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 6,
   },
-  facultyLogo: {
-    width: 80,
-    height: 80,
-    marginTop: 16,
-    marginBottom: 8,
-  },
   facultyText: {
     fontSize: 12,
     fontFamily: Platform.select({
@@ -304,16 +318,10 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   divider: {
-    width: '80%',
+    width: '100%',
     height: 1,
     backgroundColor: '#E2E8F0',
     marginVertical: 12,
-  },
-  universityLogo: {
-    width: 100,
-    height: 100,
-    marginTop: 8,
-    marginBottom: 8,
   },
   universityText: {
     fontSize: 15,
@@ -325,19 +333,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
     lineHeight: 22,
-  },
-  linkButton: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  linkText: {
-    fontSize: 14,
-    fontFamily: Platform.select({
-      ios: 'LeagueSpartan-Medium',
-      android: 'LeagueSpartan-Medium',
-    }),
-    color: '#2260FF',
   },
   copyright: {
     fontSize: 12,
@@ -382,6 +377,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
     gap: 20,  
+  },
+  linkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  linkIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  linkText: {
+    fontSize: 14,
+    fontFamily: Platform.select({
+      ios: 'LeagueSpartan-Medium',
+      android: 'LeagueSpartan-Medium',
+    }),
+    color: '#2260FF',
+    flex: 1,
+  },
+  linkArrow: {
+    fontSize: 24,
+    color: '#94A3B8',
+    fontWeight: '300',
   },
 });
 
