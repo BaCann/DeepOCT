@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -42,15 +43,20 @@ const OTPScreen = () => {
   const [resetToken, setResetToken] = useState<string | null>(null);
 
   useEffect(() => {
-    setTimeout(() => {
+    // Focus input khi vào màn hình
+    const focusTimeout = setTimeout(() => {
       hiddenInputRef.current?.focus();
-    }, 100);
+    }, 300);
 
+    // Timer countdown
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(focusTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   const formatTimer = (sec: number) => {
@@ -63,8 +69,15 @@ const OTPScreen = () => {
     setOtpValue(cleanText);
   };
 
+  // FIX: Đảm bảo focus và hiện bàn phím khi nhấn vào OTP boxes
   const handleOtpPress = () => {
-    hiddenInputRef.current?.focus();
+    if (!loading) {
+      // Dismiss keyboard trước (nếu có) rồi focus lại
+      Keyboard.dismiss();
+      setTimeout(() => {
+        hiddenInputRef.current?.focus();
+      }, 50);
+    }
   };
 
   const showDialog = (title: string, message: string, type: 'success' | 'error', token?: string) => {
@@ -100,7 +113,7 @@ const OTPScreen = () => {
           setTimer(60);
           setTimeout(() => {
             hiddenInputRef.current?.focus();
-          }, 100);
+          }, 300);
         } else {
           showDialog('Error', result.message, 'error');
         }
@@ -119,6 +132,7 @@ const OTPScreen = () => {
     }
 
     setLoading(true);
+    Keyboard.dismiss(); // Ẩn bàn phím khi confirm
 
     try {
       const result = await authService.confirmOtp(otpValue);
@@ -196,14 +210,16 @@ const OTPScreen = () => {
           keyboardType="number-pad"
           maxLength={6}
           style={styles.hiddenInput}
-          autoFocus
-          caretHidden
+          autoFocus={true}
+          caretHidden={true}
           editable={!loading}
+          selectTextOnFocus={false}
         />
 
         <TouchableOpacity
           style={styles.otpContainer}
           onPress={handleOtpPress}
+          onPressIn={handleOtpPress}
           activeOpacity={1}
           disabled={loading}
         >
@@ -304,10 +320,16 @@ const styles = StyleSheet.create({
       default: 'System',
     }),
   },
+  // FIX: Thay đổi hiddenInput để đảm bảo có thể focus được
   hiddenInput: {
     position: 'absolute',
-    left: -1000,
-    opacity: 0,
+    width: 0.1,
+    height: 0.1,
+    opacity: 0.01, // Không để 0 hoàn toàn vì có thể bị ignore
+    color: 'transparent',
+    // Đặt ở vị trí không nhìn thấy nhưng vẫn trong viewport
+    top: 0,
+    left: 0,
   },
   otpContainer: {
     flexDirection: 'row',
