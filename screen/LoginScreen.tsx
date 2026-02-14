@@ -1,4 +1,3 @@
-// src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -11,7 +10,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  // THÊM: KeyboardAvoidingView
   KeyboardAvoidingView, 
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
@@ -33,7 +31,6 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -90,7 +87,6 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header và back button nằm ngoài ScrollView */}
       <View style={styles.headerRow}>
         <TouchableOpacity 
           style={styles.backButton} 
@@ -114,14 +110,12 @@ const LoginScreen = () => {
         <Text style={styles.headerTitle}>Welcome!</Text>
       </View>
       
-      {/* Bọc ScrollView bằng KeyboardAvoidingView */}
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
           
-          {/* Email */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -136,7 +130,6 @@ const LoginScreen = () => {
             />
           </View>
 
-          {/* Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password</Text>
             <View style={styles.passwordRow}>
@@ -169,7 +162,6 @@ const LoginScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Login Button */}
           <TouchableOpacity 
             style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
             onPress={handleLogin}
@@ -182,7 +174,6 @@ const LoginScreen = () => {
             )}
           </TouchableOpacity>
 
-          {/* Sign Up */}
           <View style={styles.signupRow}>
             <Text style={styles.signupText}>Don't have an account? </Text>
             <TouchableOpacity onPress={handleSignUp}>
@@ -191,7 +182,6 @@ const LoginScreen = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      {/* Kết thúc KeyboardAvoidingView */}
 
       <CustomDialog
         isVisible={dialogVisible}
@@ -206,14 +196,12 @@ const LoginScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  // THÊM: Style cho KeyboardAvoidingView để nó chiếm phần còn lại của màn hình
   keyboardAvoidingView: {
     flex: 1,
   },
   scrollView: { 
     flexGrow: 1, 
     paddingHorizontal: 30,
-    // THÊM: Padding dưới để tạo khoảng trống khi bàn phím mở
     paddingBottom: 20, 
   },
   headerLeft: { 

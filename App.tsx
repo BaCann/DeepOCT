@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -28,10 +27,8 @@ import { TabBar } from './components/bottombar';
 import CameraScreen from './screen/CameraScreen';
 import { authEvents, AUTH_EVENTS } from './src/utils/eventEmitter';
 
-// Import CustomDialog component
 import CustomDialog from './components/dialog/CustomDialog'; 
 
-// ===== TYPE DEFINITIONS (Unchanged) =====
 export type RootStackParamList = {
   Auth: undefined;
   Main: { screen: keyof MainStackParamList };
@@ -61,12 +58,10 @@ export type MainStackParamList = {
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-// ===== STACKS (Unchanged) =====
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 
-// ===== AUTH NAVIGATOR (Unchanged) =====
 const AuthNavigator = () => (
   <AuthStack.Navigator screenOptions={{ headerShown: false }}>
     <AuthStack.Screen name="Splash" component={SplashScreen} />
@@ -79,7 +74,6 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 );
 
-// ===== MAIN NAVIGATOR (Unchanged) =====
 const MainNavigator = () => (
   <MainStack.Navigator screenOptions={{ headerShown: false }}>
     <MainStack.Screen name="Tabs" component={TabBar} />
@@ -94,7 +88,6 @@ const MainNavigator = () => (
   </MainStack.Navigator>
 );
 
-// ===== ROOT APP (Modified) =====
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -158,11 +151,9 @@ function App() {
       }
     };
 
-    // Subscribe to events
     authEvents.on(AUTH_EVENTS.TOKEN_EXPIRED, handleTokenExpired);
     authEvents.on(AUTH_EVENTS.LOGOUT, handleLogout);
 
-    // Cleanup
     return () => {
       authEvents.off(AUTH_EVENTS.TOKEN_EXPIRED, handleTokenExpired);
       authEvents.off(AUTH_EVENTS.LOGOUT, handleLogout);
@@ -185,7 +176,6 @@ function App() {
         </RootStack.Navigator>
       </NavigationContainer>
       
-      {/* Custom Dialog Component */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogContent.title}

@@ -1,6 +1,5 @@
 import authApi from '../api/auth.api';
 import StorageService from '../utils/storage';
-// import { authEvents, AUTH_EVENTS } from '../utils/eventEmitter';
 
 import {
   UserLogin,
@@ -16,7 +15,7 @@ class AuthService {
 
   async login(credentials: UserLogin): Promise<{ success: boolean; message: string }> {
     try {
-      // Validate input
+
       if (!credentials.email || !credentials.password) {
         return { success: false, message: 'Email and password are required' };
       }
@@ -25,10 +24,10 @@ class AuthService {
         return { success: false, message: 'Please enter a valid email' };
       }
 
-      // Call API
+
       const response = await authApi.login(credentials);
 
-      // Save tokens
+
       await StorageService.setAccessToken(response.access_token);
       await StorageService.setRefreshToken(response.refresh_token);
 
@@ -41,7 +40,7 @@ class AuthService {
 
   async register(userData: UserRegister): Promise<{ success: boolean; message: string }> {
     try {
-      // Validate input
+
       if (!userData.email || !userData.password || !userData.full_name) {
         return { success: false, message: 'Please fill in all required fields' };
       }
@@ -54,7 +53,7 @@ class AuthService {
         return { success: false, message: 'Password must be at least 6 characters' };
       }
 
-      // Call API
+
       const response = await authApi.register(userData);
 
       return { success: true, message: response.msg };
@@ -152,14 +151,13 @@ class AuthService {
   private handleError(error: unknown): string {
     if (error instanceof AxiosError) {
       if (error.response) {
-        // Server trả về lỗi
+
         const detail = error.response.data?.detail;
         if (typeof detail === 'string') {
           return detail;
         }
         return 'An error occurred. Please try again.';
       } else if (error.request) {
-        // Không kết nối được server
         return 'Cannot connect to server. Please check your internet connection.';
       }
     }

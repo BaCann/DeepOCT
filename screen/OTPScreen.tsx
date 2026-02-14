@@ -1,4 +1,3 @@
-// screens/OTPScreen.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -36,7 +35,6 @@ const OTPScreen = () => {
   const [resending, setResending] = useState(false);
   const hiddenInputRef = useRef<TextInput>(null);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -164,7 +162,6 @@ const OTPScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Image
@@ -190,7 +187,6 @@ const OTPScreen = () => {
           <Text style={{ color: '#2260FF' }}>{email}</Text>
         </Text>
 
-        {/* Hidden TextInput for handling input */}
         <TextInput
           ref={hiddenInputRef}
           value={otpValue}
@@ -205,7 +201,6 @@ const OTPScreen = () => {
           editable={!loading}
         />
 
-        {/* OTP Display Boxes */}
         <TouchableOpacity
           style={styles.otpContainer}
           onPress={handleOtpPress}
@@ -215,7 +210,6 @@ const OTPScreen = () => {
           {renderOtpBoxes()}
         </TouchableOpacity>
 
-        {/* Confirm Button */}
         <TouchableOpacity
           style={[styles.confirmButton, loading && styles.confirmButtonDisabled]}
           onPress={handleConfirm}
@@ -228,7 +222,6 @@ const OTPScreen = () => {
           )}
         </TouchableOpacity>
 
-        {/* Resend timer */}
         <View style={styles.resendContainer}>
           {timer === 0 ? (
             <TouchableOpacity onPress={handleResend} disabled={resending}>
@@ -246,7 +239,6 @@ const OTPScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

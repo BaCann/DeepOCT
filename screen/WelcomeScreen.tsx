@@ -37,7 +37,6 @@ const WelcomeScreen = () => {
       </View>
 
       <View style={styles.content}>
-        {/* Phần trên */}
         <View style={styles.topContent}>
           <View style={styles.logoContainer}>
             <Image
@@ -50,7 +49,6 @@ const WelcomeScreen = () => {
           <Text style={styles.subtitle}>OCT Diagnosis Assistant</Text>
         </View>
 
-        {/* Phần dưới */}
         <Text style={styles.description}>
           DeepOCT uses AI to analyze OCT images,{'\n'}
           supporting ophthalmologists in accurate diagnosis.
@@ -144,8 +142,8 @@ const styles = StyleSheet.create({
     default: 'System',
   }),
   color: '#070707',
-  textAlign: 'center', //căn đều 2 bên
-  lineHeight: 15,       //giảm dãn dòng
+  textAlign: 'center', 
+  lineHeight: 15,
   marginBottom: 20,
   paddingHorizontal: 10,
 },
@@ -176,7 +174,7 @@ loginButtonText: {
 
 signUpButton: {
   backgroundColor: '#CAD6FF',
-  height: 50, // giống login
+  height: 50, 
   paddingHorizontal: 85,
   borderRadius: 25,
   alignItems: 'center',

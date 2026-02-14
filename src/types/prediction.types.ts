@@ -1,4 +1,3 @@
-// src/types/prediction.types.ts
 
 
 export type DiseaseType = 'CNV' | 'DME' | 'DRUSEN' | 'NORMAL';
@@ -10,29 +9,25 @@ export interface DiseaseInfo {
     severity: 'low' | 'medium' | 'high' | 'none';
 }
 
-// =======================================================
-// NEW: GradCAM Analysis Interface
-// =======================================================
+
 export interface GradCAMAnalysis {
     analysis_status: 'SUCCESS' | 'FAILED' | 'ERROR';
-    image_size_pixels?: string; // Ví dụ: "768x496"
+    image_size_pixels?: string; 
     total_pixels: number;
-    threshold: number; // Ngưỡng được sử dụng (ví dụ: 0.7)
+    threshold: number; 
     hot_area_pixels: number;
-    hot_area_ratio: number; // 0.0 -> 1.0
-    hot_area_percent: number; // 0.0 -> 100.0
-    bb_width_pixels: number; // Bounding box width
-    bb_height_pixels: number; // Bounding box height
+    hot_area_ratio: number; 
+    hot_area_percent: number; 
+    bb_width_pixels: number; 
+    bb_height_pixels: number; 
     error_detail?: string;
 }
-// =======================================================
 
 
 export interface PredictionResult {
     id: string;
     user_id: string;
 
-    // Kết quả dự đoán
     predicted_class: DiseaseType;
     confidence: number; // 0-1
     probabilities: {
@@ -42,7 +37,6 @@ export interface PredictionResult {
         NORMAL: number;
     };
 
-    // Metadata
     image_url: string;
     inference_time: number; // ms
     created_at: string;
@@ -50,7 +44,6 @@ export interface PredictionResult {
 
     heatmap_url?: string;
     
-    // ĐÃ BỔ SUNG: Kết quả phân tích định lượng
     analysis_result?: GradCAMAnalysis | null; 
 }
 
@@ -110,8 +103,8 @@ export const DISEASE_INFO: Record<DiseaseType, DiseaseInfo> = {
 
 
 export const DISEASE_COLORS: Record<DiseaseType, string> = {
-    CNV: '#EF4444',       // Red
-    DME: '#F59E0B',       // Orange
-    DRUSEN: '#3B82F6',  // Blue
-    NORMAL: '#10B981',  // Green
+    CNV: '#EF4444',       
+    DME: '#F59E0B',       
+    DRUSEN: '#3B82F6',  
+    NORMAL: '#10B981',  
 };

@@ -18,20 +18,18 @@ import predictionService from '../src/services/prediction.service';
 import { UserProfile } from '../src/types/user.types';
 import { PredictionResult, DISEASE_COLORS } from '../src/types/prediction.types';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
+import CustomDialog from '../components/dialog/CustomDialog'; 
 
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();  
   const backPressRef = useRef(0);
   
-  // States
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [diagnosing, setDiagnosing] = useState(false);
   const [lastPrediction, setLastPrediction] = useState<PredictionResult | null>(null);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -140,13 +138,11 @@ const HomeScreen = () => {
   };
 
   const getDiseaseColor = (disease: string) => {
-    // Đảm bảo kiểu dữ liệu an toàn cho key access
     return DISEASE_COLORS[disease as keyof typeof DISEASE_COLORS] || '#9E9E9E'; 
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -185,7 +181,6 @@ const HomeScreen = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section */}
         <View style={styles.titleSection}>
           <Text style={styles.title}>OCT Diagnosis</Text>
           <Text style={styles.subtitle}>
@@ -193,7 +188,6 @@ const HomeScreen = () => {
           </Text>
         </View>
 
-        {/* Image Preview */}
         <View style={styles.imageContainer}>
           {selectedImage ? (
             <Image 
@@ -201,8 +195,7 @@ const HomeScreen = () => {
               style={styles.image}
               resizeMode="cover"
               onError={(e) => {
-                console.error('❌ Image load error:', e.nativeEvent.error);
-                // Thay Alert thành showDialog
+                console.error('Image load error:', e.nativeEvent.error);
                 showDialog('Error', 'Failed to load image', 'error');
               }}
             />
@@ -222,7 +215,6 @@ const HomeScreen = () => {
           )}
         </View>
 
-        {/* Diagnose Button */}
         {selectedImage && (
           <TouchableOpacity
             style={[
@@ -240,7 +232,6 @@ const HomeScreen = () => {
           </TouchableOpacity>
         )}
 
-        {/* Prediction Result */}
         {lastPrediction && (
           <View style={styles.resultContainer}>
             <View style={styles.resultHeader}>
@@ -306,14 +297,12 @@ const HomeScreen = () => {
         )}
       </ScrollView>
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
         message={dialogMessage}
         onConfirm={handleDialogConfirm}
         confirmText="OK"
-        // Lỗi và thành công đều chỉ có 1 nút OK
       />
     </SafeAreaView>
   );
@@ -338,8 +327,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 20,
-    backgroundColor: 'transparent',  // ĐỔI từ '#FFFFFF' thành 'transparent'
-    borderBottomWidth: 0,  // ĐỔI từ 1 thành 0
+    backgroundColor: 'transparent',  
+    borderBottomWidth: 0,  
   },
   headerLeft: {
     flex: 1,
@@ -388,7 +377,7 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-Light',
       default: 'System',
     }),
-    color: '#E0E7FF',  // ĐỔI từ '#6B7280' thành màu xanh nhạt
+    color: '#E0E7FF',  
     marginBottom: 2,
   },
   profileName: {
@@ -398,30 +387,22 @@ const styles = StyleSheet.create({
       android: 'LeagueSpartan-SemiBold',
       default: 'System',
     }),
-    color: '#FFFFFF',  // ĐỔI từ '#1F2937' thành '#FFFFFF'
+    color: '#FFFFFF',  
   },
   historyButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',  // ĐỔI từ '#ECF1FF' thành transparent white
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',  
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  // historyText: {
-  //   fontSize: 16,
-  //   fontFamily: Platform.select({
-  //     ios: 'LeagueSpartan-Medium',
-  //     android: 'LeagueSpartan-Medium',
-  //     default: 'System',
-  //   }),
-  //   color: '#2260FF',
-  // },
+
   headerWrapper: {
     backgroundColor: '#2260FF',
-    paddingTop: Platform.OS === 'ios' ? 50 : 40,  // Tự động điều chỉnh theo iOS/Android
+    paddingTop: Platform.OS === 'ios' ? 50 : 40,  
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,

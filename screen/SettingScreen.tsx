@@ -1,4 +1,3 @@
-// screen/SettingScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -18,7 +17,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
 import userService from '../src/services/user.service';
 import { UserProfile } from '../src/types/user.types';
-// Import DialogOption từ CustomDialog
 import CustomDialog, { DialogOption } from '../components/dialog/CustomDialog'; 
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';  
@@ -83,7 +81,6 @@ const SettingScreen = () => {
     if (result.success && result.data) {
       setProfile(result.data);
       
-      // Set avatar URI từ server nếu có
       if (result.data.avatar_url) {
         setAvatarUri(result.data.avatar_url);
       }
@@ -224,11 +221,9 @@ const SettingScreen = () => {
         </View>
       </View>
 
-        {/* Profile Section - Di chuyển ra ngoài headerWrapper */}
       <View style={styles.profileContainer}>
         {profile && (
           <View style={styles.profileSection}>
-            {/* Avatar - Thêm TouchableOpacity và Camera Overlay */}
             <TouchableOpacity 
               style={styles.avatarWrapper}
               onPress={handleAvatarPress}
@@ -248,7 +243,6 @@ const SettingScreen = () => {
                 </View>
               )}
               
-              {/* Camera Overlay mờ */}
               <View style={styles.cameraOverlay}>
                 {uploadingAvatar ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
@@ -272,10 +266,8 @@ const SettingScreen = () => {
         )}
       </View>
 
-      {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
 
-        {/* Account Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
 
@@ -295,7 +287,6 @@ const SettingScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Privacy Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Privacy</Text>
 
@@ -305,7 +296,6 @@ const SettingScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* About Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
 
@@ -315,11 +305,9 @@ const SettingScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Version */}
         <Text style={styles.version}></Text>
       </ScrollView>
 
-      {/* Custom Dialog cho thông báo (Giữ nguyên) */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

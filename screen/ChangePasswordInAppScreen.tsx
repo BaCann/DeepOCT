@@ -10,7 +10,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  // THÊM: KeyboardAvoidingView
   KeyboardAvoidingView, 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -31,7 +30,6 @@ const ChangePasswordInAppScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -46,7 +44,6 @@ const ChangePasswordInAppScreen = () => {
 
   const handleDialogConfirm = () => {
     setDialogVisible(false);
-    // Nếu là thông báo thành công, quay lại màn hình trước
     if (dialogType === 'success') {
       navigation.goBack();
     }
@@ -87,7 +84,6 @@ const ChangePasswordInAppScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh (Phần này cố định, không nằm trong ScrollView) */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} disabled={loading}>
@@ -101,17 +97,14 @@ const ChangePasswordInAppScreen = () => {
         </View>
       </View>
       
-      {/* BỌC ScrollView BẰNG KeyboardAvoidingView */}
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} // Tùy chọn điều chỉnh thêm offset
       >
         <ScrollView
           contentContainerStyle={styles.scrollView}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Current Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Current Password</Text>
             <View style={styles.passwordRow}>
@@ -142,7 +135,6 @@ const ChangePasswordInAppScreen = () => {
             </View>
           </View>
 
-          {/* New Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>New Password</Text>
             <View style={styles.passwordRow}>
@@ -173,7 +165,6 @@ const ChangePasswordInAppScreen = () => {
             </View>
           </View>
 
-          {/* Confirm New Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Confirm New Password</Text>
             <View style={styles.passwordRow}>
@@ -204,7 +195,6 @@ const ChangePasswordInAppScreen = () => {
             </View>
           </View>
 
-          {/* Change Password Button */}
           <TouchableOpacity
             style={[styles.changeButton, loading && styles.changeButtonDisabled]}
             onPress={handleChangePassword}
@@ -218,9 +208,7 @@ const ChangePasswordInAppScreen = () => {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-      {/* Kết thúc KeyboardAvoidingView */}
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

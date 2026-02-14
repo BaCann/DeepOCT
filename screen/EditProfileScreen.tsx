@@ -27,7 +27,6 @@ const EditProfileScreen = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -62,13 +61,11 @@ const EditProfileScreen = () => {
     setLoading(false);
   };
 
-  // Validate
   const validateInput = () => {
     const nameRegex = /^[a-zA-Z\s]+$/;
     const mobileRegex = /^[0-9]+$/;
     const dateRegex = /^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$/;
 
-    // FULL NAME
     if (!fullName.trim()) {
       showDialog('Error', 'Full name is required', 'error');
       return false;
@@ -78,7 +75,6 @@ const EditProfileScreen = () => {
       return false;
     }
 
-    // MOBILE NUMBER
     if (!mobileNumber.trim()) {
       showDialog('Error', 'Mobile number is required', 'error');
       return false;
@@ -88,7 +84,6 @@ const EditProfileScreen = () => {
       return false;
     }
 
-    // DATE OF BIRTH
     if (!dateOfBirth.trim()) {
       showDialog('Error', 'Date of Birth is required', 'error');
       return false;
@@ -137,7 +132,6 @@ const EditProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -153,7 +147,6 @@ const EditProfileScreen = () => {
 
       <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
 
-        {/* Full Name */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Full Name</Text>
           <TextInput
@@ -167,7 +160,6 @@ const EditProfileScreen = () => {
           />
         </View>
 
-        {/* Mobile Number */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Mobile Number</Text>
           <TextInput
@@ -182,7 +174,6 @@ const EditProfileScreen = () => {
           />
         </View>
 
-        {/* Date of Birth */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Date of Birth</Text>
           <TextInput
@@ -195,7 +186,6 @@ const EditProfileScreen = () => {
           />
         </View>
 
-        {/* Save Button */}
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
           onPress={handleSave}
@@ -205,7 +195,6 @@ const EditProfileScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

@@ -10,7 +10,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  // THÊM: KeyboardAvoidingView
   KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
@@ -29,7 +28,6 @@ const DeleteAccountScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -58,7 +56,6 @@ const DeleteAccountScreen = () => {
       setLoading(false); 
 
       if (result.success) {
-        // Thông báo thành công: chỉ có nút OK
         showDialog(
           'Account Deleted',
           'Your account has been permanently deleted. We are sorry to see you go.',
@@ -66,7 +63,6 @@ const DeleteAccountScreen = () => {
           false 
         );
       } else {
-        // Lỗi API/Sai mật khẩu: chỉ có nút OK
         showDialog('Error', result.message, 'error', false); 
       }
     } catch (error) {
@@ -78,11 +74,9 @@ const DeleteAccountScreen = () => {
 
   const handleDialogConfirm = () => {
     if (dialogMode === 'finalConfirm') {
-      // Ẩn dialog xác nhận trước khi gọi API
       setDialogVisible(false); 
       executeDelete(); 
     } else if (dialogMode === 'successDelete') {
-      // Xóa thành công: đóng dialog và chuyển màn hình
       setDialogVisible(false);
       navigation.dispatch(
         CommonActions.reset({
@@ -91,7 +85,6 @@ const DeleteAccountScreen = () => {
         })
       );
     } else {
-      // Các lỗi (error mode): chỉ đóng dialog
       setDialogVisible(false); 
     }
   };
@@ -99,17 +92,15 @@ const DeleteAccountScreen = () => {
 
   const handleDeleteAccount = async () => {
     if (!password) {
-      // Lỗi xác thực đầu vào: chỉ có nút OK
       showDialog('Error', 'Please enter your password to confirm', 'error', false);
       return;
     }
 
-    // Hiển thị dialog xác nhận cuối cùng: CÓ 2 nút
     showDialog(
       'Final Confirmation',
       'Are you absolutely sure? This action CANNOT be undone. All your data will be permanently deleted.',
       'finalConfirm',
-      true // Hiển thị nút Cancel
+      true 
     );
   };
 
@@ -131,7 +122,6 @@ const DeleteAccountScreen = () => {
         <View style={styles.placeholder} />
       </View>
       
-      {/* BỌC ScrollView BẰNG KeyboardAvoidingView */}
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -140,12 +130,10 @@ const DeleteAccountScreen = () => {
           contentContainerStyle={styles.scrollView}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Warning Icon */}
           <View style={styles.warningContainer}>
             <Text style={styles.warningIcon}>⚠️</Text>
           </View>
 
-          {/* Warning Text */}
           <Text style={styles.warningTitle}>This action is permanent!</Text>
           <Text style={styles.warningText}>
             Deleting your account will:{'\n\n'}
@@ -155,7 +143,6 @@ const DeleteAccountScreen = () => {
             • This action CANNOT be undone
           </Text>
 
-          {/* Password Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Enter your password to confirm</Text>
             <View style={styles.passwordRow}>
@@ -186,7 +173,6 @@ const DeleteAccountScreen = () => {
             </View>
           </View>
 
-          {/* Delete Button */}
           <TouchableOpacity
             style={[styles.deleteButton, loading && styles.deleteButtonDisabled]}
             onPress={handleDeleteAccount}
@@ -199,7 +185,6 @@ const DeleteAccountScreen = () => {
             )}
           </TouchableOpacity>
 
-          {/* Cancel Button */}
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => navigation.goBack()}
@@ -209,9 +194,7 @@ const DeleteAccountScreen = () => {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-      {/* Kết thúc KeyboardAvoidingView */}
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
@@ -231,7 +214,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  // THÊM: Style cho KeyboardAvoidingView
   keyboardAvoidingView: {
     flex: 1,
   },
@@ -239,7 +221,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 30,
     paddingTop: 40,
-    // THÊM: Padding dưới để bàn phím không che
     paddingBottom: 40, 
   },
   headerRow: {

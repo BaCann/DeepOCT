@@ -1,4 +1,3 @@
-// src/services/user.service.ts
 import userApi from '../api/user.api';
 import StorageService from '../utils/storage';
 import { authEvents, AUTH_EVENTS } from '../utils/eventEmitter';
@@ -16,7 +15,6 @@ class UserService {
     try {
       const profile = await userApi.getProfile();
       
-      // Lưu profile vào storage
       await StorageService.setUserData(profile);
       
       return { success: true, data: profile, message: 'Profile loaded successfully' };
@@ -32,7 +30,6 @@ class UserService {
     try {
       const response = await userApi.updateProfile(data);
       
-      // Update storage
       const currentProfile = await StorageService.getUserData();
       if (currentProfile) {
         await StorageService.setUserData({ ...currentProfile, ...data });
@@ -78,7 +75,6 @@ class UserService {
 
       const response = await userApi.deleteAccount({ password });
 
-      // Clear all storage
       await StorageService.clearAll();
 
       return { success: true, message: response.msg };
@@ -91,7 +87,6 @@ class UserService {
     try {
       const updatedProfile = await userApi.uploadAvatar(imageUri);
       
-      // Cập nhật storage với profile mới (có avatar_url)
       await StorageService.setUserData(updatedProfile);
       
       return { 

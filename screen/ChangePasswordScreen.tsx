@@ -34,7 +34,6 @@ const ChangePasswordScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -61,7 +60,6 @@ const ChangePasswordScreen = () => {
 
 
   const validateInput = () => {
-    // Validation
     if (!newPassword || !confirmPassword) {
       showDialog('Error', 'Please fill in all fields', 'error');
       return false;
@@ -107,7 +105,6 @@ const ChangePasswordScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} disabled={loading}>
           <Image
@@ -124,7 +121,6 @@ const ChangePasswordScreen = () => {
         <View style={styles.placeholder} />
       </View>
 
-      {/* BỌC ScrollView BẰNG KeyboardAvoidingView */}
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -137,7 +133,6 @@ const ChangePasswordScreen = () => {
             Please enter your new password
           </Text>
 
-          {/* New Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>New Password</Text>
             <View style={styles.passwordRow}>
@@ -168,7 +163,6 @@ const ChangePasswordScreen = () => {
             </View>
           </View>
 
-          {/* Confirm Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Confirm Password</Text>
             <View style={styles.passwordRow}>
@@ -199,7 +193,6 @@ const ChangePasswordScreen = () => {
             </View>
           </View>
 
-          {/* Change Password Button */}
           <TouchableOpacity
             style={[styles.changeButton, loading && styles.changeButtonDisabled]}
             onPress={handleChangePassword}
@@ -213,9 +206,7 @@ const ChangePasswordScreen = () => {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-      {/* Kết thúc KeyboardAvoidingView */}
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

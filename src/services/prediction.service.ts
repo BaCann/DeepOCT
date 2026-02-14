@@ -1,4 +1,3 @@
-// src/services/prediction.service.ts
 import predictionApi from '../api/prediction.api';
 import {
   PredictResponse,
@@ -8,14 +7,9 @@ import { AxiosError } from 'axios';
 
 
 class PredictionService {
-  /**
-   * Dự đoán bệnh từ ảnh OCT
-   * @param imageUri - Local file URI (file://...)
-   * @returns PredictResponse
-   */
+
   async predict(imageUri: string): Promise<PredictResponse> {
     try {
-      // Validate input
       if (!imageUri || imageUri.trim() === '') {
         return {
           success: false,
@@ -30,7 +24,6 @@ class PredictionService {
         };
       }
 
-      // Call API
       const data = await predictionApi.predict(imageUri);
 
       return {
@@ -46,22 +39,15 @@ class PredictionService {
     }
   }
 
-  /**
-   * Lấy lịch sử predictions
-   * @param page - Page number (default: 1)
-   * @param pageSize - Items per page (default: 20)
-   * @returns HistoryResponse
-   */
+
   async getHistory(
     page: number = 1,
     pageSize: number = 20
   ): Promise<HistoryResponse> {
     try {
-      // Validate pagination
       if (page < 1) page = 1;
       if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
-      // Call API
       const response = await predictionApi.getHistory(page, pageSize);
 
       return {
@@ -84,14 +70,8 @@ class PredictionService {
     }
   }
 
-  /**
-   * Lấy chi tiết prediction
-   * @param predictionId - UUID của prediction
-   * @returns PredictResponse
-   */
   async getDetail(predictionId: string): Promise<PredictResponse> {
     try {
-      // Validate input
       if (!predictionId || predictionId.trim() === '') {
         return {
           success: false,
@@ -99,7 +79,6 @@ class PredictionService {
         };
       }
 
-      // Call API
       const data = await predictionApi.getDetail(predictionId);
 
       return {
@@ -115,14 +94,9 @@ class PredictionService {
     }
   }
 
-  /**
-   * Xóa prediction
-   * @param predictionId - UUID của prediction
-   * @returns { success: boolean, message: string }
-   */
+
   async delete(predictionId: string): Promise<{ success: boolean; message: string }> {
     try {
-      // Validate input
       if (!predictionId || predictionId.trim() === '') {
         return {
           success: false,
@@ -130,7 +104,6 @@ class PredictionService {
         };
       }
 
-      // Call API
       const response = await predictionApi.delete(predictionId);
 
       return {
@@ -145,13 +118,10 @@ class PredictionService {
     }
   }
 
-  /**
-   * Handle errors - Giống auth.service.ts
-   */
+
   private handleError(error: unknown): string {
     if (error instanceof AxiosError) {
       if (error.response) {
-        // Server trả về lỗi
         const status = error.response.status;
         const detail = error.response.data?.detail;
 
@@ -175,7 +145,6 @@ class PredictionService {
             : 'An error occurred. Please try again.';
         }
       } else if (error.request) {
-        // Không kết nối được server
         return 'Cannot connect to server. Please check your internet connection.';
       }
     }

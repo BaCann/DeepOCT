@@ -10,7 +10,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  // THÊM:
   KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -41,7 +40,6 @@ const RegisterScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -57,7 +55,6 @@ const RegisterScreen = () => {
   const handleDialogConfirm = () => {
     setDialogVisible(false);
     
-    // Nếu là thông báo thành công, chuyển sang màn Login
     if (dialogType === 'success') {
       navigation.navigate('Login');
     }
@@ -109,8 +106,7 @@ const RegisterScreen = () => {
                 showDialog('Error', 'Date of Birth format must be DD/MM/YYYY.', 'error');
                 return false;
             }
-            // Chú ý: Date constructor trong JS nhận MM-DD-YYYY hoặc YYYY/MM/DD, 
-            // nên cần chuyển sang định dạng YYYY-MM-DD để isValid hoạt động chính xác
+
             const parsedDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
             if (!isValid(parsedDate) || parsedDate.getFullYear() != parseInt(parts[2]) || parsedDate.getMonth() != parseInt(parts[1]) - 1 || parsedDate.getDate() != parseInt(parts[0])) {
                  showDialog('Error', 'Date of Birth is invalid.', 'error');
@@ -164,14 +160,13 @@ const RegisterScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Bọc toàn bộ nội dung cuộn bằng KeyboardAvoidingView */}
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView 
           contentContainerStyle={styles.scrollView}
-          keyboardShouldPersistTaps="handled" // Giúp tương tác với các component khác dễ hơn khi bàn phím mở
+          keyboardShouldPersistTaps="handled" 
         >
           <View style={styles.headerRow}>
             <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
@@ -189,8 +184,7 @@ const RegisterScreen = () => {
             <View style={styles.placeholder} />
           </View>
 
-          {/* Full Name */}
-          <View style={styles.inputContainer}>
+\          <View style={styles.inputContainer}>
             <Text style={styles.label}>Full name</Text>
             <TextInput
               style={styles.input}
@@ -203,7 +197,6 @@ const RegisterScreen = () => {
             />
           </View>
 
-          {/* Email */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -218,7 +211,6 @@ const RegisterScreen = () => {
             />
           </View>
 
-          {/* Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password</Text>
             <View style={styles.passwordContainer}>
@@ -250,7 +242,6 @@ const RegisterScreen = () => {
             </View>
           </View>
 
-          {/* Confirm Password */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Confirm Password</Text>
             <View style={styles.passwordContainer}>
@@ -282,7 +273,6 @@ const RegisterScreen = () => {
             </View>
           </View>
 
-          {/* Phone Number */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Phone Number</Text>
             <TextInput
@@ -298,7 +288,6 @@ const RegisterScreen = () => {
           </View>
 
 
-          {/* Date of birth */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Date of Birth</Text>
             <TouchableOpacity onPress={showDatepicker} disabled={loading}>
@@ -327,7 +316,6 @@ const RegisterScreen = () => {
           </View>
 
 
-          {/* Register Button */}
           <TouchableOpacity 
             style={[styles.registerButton, loading && styles.registerButtonDisabled]} 
             onPress={handleRegister}
@@ -340,7 +328,6 @@ const RegisterScreen = () => {
             )}
           </TouchableOpacity>
 
-          {/* Login Link */}
         <View style={styles.loginLinkRow}>
           <Text style={styles.signinText}>Already have an account? </Text>
           <TouchableOpacity onPress={handleSignIn} disabled={loading}>
@@ -350,9 +337,7 @@ const RegisterScreen = () => {
 
         </ScrollView>
       </KeyboardAvoidingView>
-      {/* Kết thúc KeyboardAvoidingView */}
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
@@ -369,14 +354,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  // THÊM: Style cho KeyboardAvoidingView để nó chiếm toàn bộ không gian
   keyboardAvoidingView: {
     flex: 1,
   },
   scrollView: {
     flexGrow: 1,
     paddingHorizontal: 30,
-    // THÊM: paddingBottom để tạo khoảng trống cuối ScrollView (tùy chọn)
     paddingBottom: 40, 
   },
 

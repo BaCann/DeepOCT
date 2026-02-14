@@ -1,4 +1,3 @@
-// src/screens/CameraScreen.tsx
 import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
@@ -25,7 +24,6 @@ const CameraScreen = () => {
   const [flashOn, setFlashOn] = useState(false);
   const navigation = useNavigation<any>();
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -47,7 +45,6 @@ const CameraScreen = () => {
 
   const handleDialogConfirm = () => {
     setDialogVisible(false);
-    // Logic mở Settings không được thêm vì Alert ban đầu không có option này
     setDialogHasSettings(false);
   };
 
@@ -111,7 +108,6 @@ const CameraScreen = () => {
         <TouchableOpacity style={styles.permissionButton} onPress={requestCameraPermission}>
           <Text style={styles.permissionButtonText}>Grant Camera Permission</Text>
         </TouchableOpacity>
-        {/* Custom Dialog cũng có thể hiển thị ở đây nếu cần */}
       </View>
     );
   }
@@ -148,7 +144,6 @@ const CameraScreen = () => {
         },
       });
       
-    //  showDialog('Success', 'Photo captured! You can now diagnose it.', 'success');
     } catch (e) {
       console.log('Failed to take or crop photo:', e);
     }
@@ -251,7 +246,6 @@ const CameraScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

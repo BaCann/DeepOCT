@@ -25,7 +25,6 @@ const AboutScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -40,7 +39,6 @@ const AboutScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollView}>
-        {/* App Logo */}
         <View style={styles.logoContainer}>
           <Image
             source={require('../assets/logo_bule.png')}
@@ -49,12 +47,10 @@ const AboutScreen = () => {
           />
         </View>
 
-        {/* App Name */}
         <Text style={styles.appName}>DeepOCT</Text>
         <Text style={styles.tagline}>OCT Diagnosis Assistant</Text>
         <Text style={styles.version}>Version 1.0.0</Text>
 
-        {/* Description */}
         <View style={styles.section}>
           <Text style={styles.description}>
             DeepOCT uses advanced artificial intelligence to analyze Optical Coherence Tomography
@@ -62,7 +58,6 @@ const AboutScreen = () => {
           </Text>
         </View>
 
-        {/* Features */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Key Features</Text>
           <View style={styles.featureItem}>
@@ -83,12 +78,10 @@ const AboutScreen = () => {
           </View>
         </View>
 
-        {/* Team */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Development Team</Text>
           
           <View style={styles.teamContainer}>
-            {/* 2 Logo cạnh nhau */}
             <View style={styles.logoRow}>
               <Image
                 source={require('../assets/logo_truong.png')}
@@ -102,30 +95,24 @@ const AboutScreen = () => {
               />
             </View>
             
-            {/* Tên Trường */}
             <Text style={styles.universityText}>
               University of Information Technology - UIT
             </Text>
             
-            {/* Tên Khoa */}
             <Text style={styles.facultyText}>
               Faculty of Computer Networks and Data Communications
             </Text>
             
-            {/* Đường kẻ phân cách */}
             <View style={styles.divider} />
             
-            {/* Thành viên */}
             <Text style={styles.teamMember}>Duong Ba Can - 22520143</Text>
             <Text style={styles.teamMember}>Nguyen Vo Dai Duong - 22520308</Text>
           </View>
         </View>
 
-        {/* Contact & Legal */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact & Legal</Text>
           
-          {/* Email */}
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => handleLinkPress('mailto:noreply.deepoct@gmail.com')}
@@ -135,7 +122,6 @@ const AboutScreen = () => {
             <Text style={styles.linkArrow}>›</Text>
           </TouchableOpacity>
 
-          {/* Terms of Service */}
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => handleLinkPress('https://infor.deepoct.id.vn/terms.html')}
@@ -145,7 +131,6 @@ const AboutScreen = () => {
             <Text style={styles.linkArrow}>›</Text>
           </TouchableOpacity>
 
-          {/* Privacy Policy */}
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => handleLinkPress('https://infor.deepoct.id.vn/privacy.html')}
@@ -156,7 +141,6 @@ const AboutScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Copyright */}
         <Text style={styles.copyright}>© 2025 DeepOCT. All rights reserved.</Text>
       </ScrollView>
     </SafeAreaView>

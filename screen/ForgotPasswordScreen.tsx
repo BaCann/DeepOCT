@@ -14,7 +14,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import authService from '../src/services/auth.service';
-import CustomDialog from '../components/dialog/CustomDialog'; // Import CustomDialog
+import CustomDialog from '../components/dialog/CustomDialog'; 
 
 type RootStackParamList = {
   Login: undefined;
@@ -85,7 +85,6 @@ const ForgotPasswordScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Row: Back + Title + Placeholder */}
       <View style={styles.headerRow}>
         <TouchableOpacity
           style={styles.backButton}
@@ -105,18 +104,15 @@ const ForgotPasswordScreen = () => {
         <View style={styles.placeholder} />
       </View>
 
-      {/* Scrollable Content */}
       <ScrollView
         contentContainerStyle={styles.scrollView}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Info Text */}
         <Text style={styles.infoText}>
           Enter your email address and we'll send you an OTP code to reset your
           password.
         </Text>
 
-        {/* Email */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Enter Email</Text>
           <TextInput
@@ -131,7 +127,6 @@ const ForgotPasswordScreen = () => {
           />
         </View>
 
-        {/* Send OTP Button */}
         <TouchableOpacity
           style={[styles.otpButton, loading && styles.otpButtonDisabled]}
           onPress={handleSendOTP}
@@ -145,7 +140,6 @@ const ForgotPasswordScreen = () => {
         </TouchableOpacity>
       </ScrollView>
       
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

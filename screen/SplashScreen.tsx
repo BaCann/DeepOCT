@@ -21,7 +21,6 @@ const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(r
 const SplashScreen = () => {
   const navigation = useNavigation<any>();
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -119,7 +118,6 @@ const SplashScreen = () => {
       
       <Text style={styles.version}>v1.0.0</Text>
       
-      {/* Custom Dialog */}
       {isReady && (
         <CustomDialog
           isVisible={dialogVisible}

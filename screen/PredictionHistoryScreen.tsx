@@ -1,4 +1,3 @@
-// src/screens/PredictionHistoryScreen.tsx
 import React, { useState, useCallback } from 'react';
 import {
   View,
@@ -18,7 +17,6 @@ import { PredictionHistory, DISEASE_COLORS } from '../src/types/prediction.types
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CustomDialog from '../components/dialog/CustomDialog';
 
-// Định nghĩa các chế độ của dialog
 type DialogMode = 'error' | 'deleteSingleConfirm' | 'success'; 
 
 const PredictionHistoryScreen = () => {
@@ -28,13 +26,11 @@ const PredictionHistoryScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const pageSize = 5;
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -62,16 +58,13 @@ const PredictionHistoryScreen = () => {
     }, [currentPage])
   );
 
-  // ===============================================
-  // MARK: - DIALOG & DELETION LOGIC
-  // ===============================================
+
 
   const executeSingleDelete = async (item: PredictionHistory) => {
     const result = await predictionService.delete(item.id);
     
     if (result.success) {
       showDialog('Success', 'Prediction deleted successfully.', 'success');
-      // Tải lại lịch sử sau khi xóa
       reloadHistoryAfterDelete(1);
     } else {
       showDialog('Error', result.message || 'Failed to delete prediction.', 'error');
@@ -83,7 +76,6 @@ const PredictionHistoryScreen = () => {
       const newTotalPages = Math.ceil(newTotalItems / pageSize);
       let pageToLoad = currentPage;
 
-      // Nếu trang hiện tại trống sau khi xóa, quay lại trang trước
       if (history.length <= deletedCount && currentPage > 1) {
           pageToLoad = currentPage - 1;
       }
@@ -100,11 +92,9 @@ const PredictionHistoryScreen = () => {
   const handleDialogConfirm = () => {
     setDialogVisible(false);
     if (dialogMode === 'deleteSingleConfirm' && itemToDelete) {
-      // Thực hiện xóa sau khi xác nhận
       executeSingleDelete(itemToDelete);
       setItemToDelete(null);
     }
-    // Các mode 'success' hoặc 'error' chỉ cần đóng dialog (setDialogVisible(false) đã xử lý)
   };
 
   const handleDelete = (item: PredictionHistory) => {
@@ -113,13 +103,11 @@ const PredictionHistoryScreen = () => {
       'Delete Prediction',
       'Are you sure you want to delete this prediction?',
       'deleteSingleConfirm',
-      true // showCancel
+      true 
     );
   };
 
-  // ===============================================
-  // MARK: - DATA LOADING
-  // ===============================================
+
 
   const loadHistory = async (page: number) => {
     if (page === 1 && !refreshing) {
@@ -158,9 +146,7 @@ const PredictionHistoryScreen = () => {
   };
 
 
-  // ===============================================
-  // MARK: - RENDERING
-  // ===============================================
+
 
   const renderItem = ({ item }: { item: PredictionHistory }) => {
     return (
@@ -169,14 +155,12 @@ const PredictionHistoryScreen = () => {
         onPress={() => handleItemPress(item)}
         activeOpacity={0.7}
       >
-        {/* Thumbnail */}
         <Image
           source={{ uri: item.thumbnail_url }}
           style={styles.thumbnail}
           resizeMode="cover"
         />
 
-        {/* Info */}
         <View style={styles.historyInfo}>
           <View style={styles.historyHeader}>
             <View
@@ -203,7 +187,6 @@ const PredictionHistoryScreen = () => {
           </Text>
         </View>
 
-        {/* Delete button */}
         <TouchableOpacity
           style={styles.deleteButton}
           onPress={() => handleDelete(item)}
@@ -229,7 +212,6 @@ const PredictionHistoryScreen = () => {
 
     return (
       <View style={styles.paginationContainer}>
-        {/* Previous Button */}
         <TouchableOpacity
           style={styles.pageButton}
           onPress={() => handlePageChange(currentPage - 1)}
@@ -242,14 +224,12 @@ const PredictionHistoryScreen = () => {
           />
         </TouchableOpacity>
 
-        {/* Page Info */}
         <View style={styles.pageInfo}>
           <Text style={styles.pageText}>
             Page {currentPage} of {totalPages}
           </Text>
         </View>
 
-        {/* Next Button */}
         <TouchableOpacity
           style={styles.pageButton}
           onPress={() => handlePageChange(currentPage + 1)}
@@ -278,7 +258,6 @@ const PredictionHistoryScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -295,7 +274,6 @@ const PredictionHistoryScreen = () => {
         </View>
       </View>
 
-      {/* Stats */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{totalItems}</Text>
@@ -308,7 +286,6 @@ const PredictionHistoryScreen = () => {
         </View>
       </View>
 
-      {/* List */}
       <FlatList
         data={history}
         renderItem={renderItem}
@@ -326,7 +303,6 @@ const PredictionHistoryScreen = () => {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

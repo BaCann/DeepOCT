@@ -38,7 +38,6 @@ const PermissionsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [permissions, setPermissions] = useState<Permission[]>([]);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -179,7 +178,6 @@ const PermissionsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -241,7 +239,6 @@ const PermissionsScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}

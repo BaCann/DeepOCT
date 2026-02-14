@@ -27,7 +27,6 @@ interface CustomDialogProps {
   showCancelButton?: boolean; 
   confirmButtonColor?: string;
 
-  // OPTIONS MODE
   options?: DialogOption[];
   onClose?: () => void;
 }
@@ -132,7 +131,6 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
     );
   };
 
-  // OPTIONS MODE (upload avatar)
   if (options) {
     return (
       <Modal transparent visible={isVisible} animationType="none">
@@ -154,7 +152,6 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
     );
   }
 
-  // NORMAL CONFIRM DIALOG
   return (
     <Modal transparent visible={isVisible} animationType="none">
       <TouchableWithoutFeedback onPress={handleBackdropPress}>

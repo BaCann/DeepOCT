@@ -1,4 +1,3 @@
-// src/screens/PredictionDetailScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -27,7 +26,6 @@ const PredictionDetailScreen = () => {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Dialog states
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -57,7 +55,6 @@ const PredictionDetailScreen = () => {
       setPrediction(result.data);
     } else {
       showDialog('Error', result.message || 'Prediction not found');
-      // handleDialogConfirm sẽ navigate back
     }
     
     setLoading(false);
@@ -83,7 +80,6 @@ const PredictionDetailScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header với background xanh */}
       <View style={styles.headerWrapper}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -104,7 +100,6 @@ const PredictionDetailScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Image */}
         <View style={styles.imageContainer}>
           <Image
             source={{ uri: prediction.image_url }}
@@ -113,7 +108,6 @@ const PredictionDetailScreen = () => {
           />
         </View>
 
-        {/* Disease Badge */}
         <View style={styles.diseaseSection}>
           <View
             style={[styles.diseaseBadgeLarge, { backgroundColor: diseaseColor }]}
@@ -135,7 +129,6 @@ const PredictionDetailScreen = () => {
           </View>
         </View>
 
-        {/* Confidence */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Confidence</Text>
           <View style={styles.confidenceBar}>
@@ -154,7 +147,6 @@ const PredictionDetailScreen = () => {
           </Text>
         </View>
 
-        {/* Probabilities */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>All Probabilities</Text>
           {Object.entries(prediction.probabilities).map(([disease, prob]) => (
@@ -184,7 +176,6 @@ const PredictionDetailScreen = () => {
           ))}
         </View>
 
-        {/* Heatmap (if available) */}
         {prediction.heatmap_url && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Heatmap Visualization</Text>
@@ -199,7 +190,6 @@ const PredictionDetailScreen = () => {
           </View>
         )}
 
-        {/* Metadata */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Details</Text>
           <View style={styles.metadataRow}>
@@ -223,7 +213,6 @@ const PredictionDetailScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Custom Dialog */}
       <CustomDialog
         isVisible={dialogVisible}
         title={dialogTitle}
